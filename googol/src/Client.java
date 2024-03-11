@@ -37,7 +37,7 @@ public class Client {
                     server.search(message);
                 } else if(message.equals("2")) {
                     System.out.print("Enter the URL: ");
-                    message = "index " + scanner.nextLine();
+                    message = scanner.nextLine();
                     server.indexURL(message);
                 } else {
                     System.out.println("Invalid option");
