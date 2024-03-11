@@ -1,6 +1,10 @@
+package Client;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.util.Scanner;
+
+import Gateway.GatewayInt;
+
 
 public class Client {
 

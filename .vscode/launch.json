@@ -4,7 +4,20 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-
+        {
+            "type": "java",
+            "name": "Client",
+            "request": "launch",
+            "mainClass": "Client.Client",
+            "projectName": "SD_proj_bf4b7605"
+        },
+        {
+            "type": "java",
+            "name": "Gateway",
+            "request": "launch",
+            "mainClass": "Gateway.Gateway",
+            "projectName": "SD_proj_bf4b7605"
+        },
         {
             "type": "java",
             "name": "Current File",
