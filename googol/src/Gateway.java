@@ -1,25 +1,21 @@
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
 
 public class Gateway extends UnicastRemoteObject implements GatewayInt {
 
-    Queue<String> url_queue;
+    Dispatcher dispatcher;
 
     protected Gateway() throws RemoteException {
         super();
-        url_queue = new LinkedList<>();
+        dispatcher = new Dispatcher();
     }
 
 
     @Override
     public void indexURL(String url) throws RemoteException {
         System.out.println("Indexing " + url);
-        url_queue.add(message);
-        System.out.println(url_queue);
+        dispatcher.push(url);
+        System.out.println(dispatcher);
     }
 
     @Override
