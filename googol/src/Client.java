@@ -6,7 +6,13 @@ public class Client {
 
     public static void main(String[] args) {
         try {
-            GatewayInt server = (GatewayInt) Naming.lookup("rmi://localhost/gateway");
+            String rmi_address = "localhost";
+            if(args.length != 1){
+                System.out.println("WRONG NUMBER OF PARAMS: defaulting to localhost");
+            }else{
+                rmi_address = args[0];
+            }
+            GatewayInt server = (GatewayInt) Naming.lookup("rmi://" + rmi_address +"/gateway");
 
             Scanner scanner = new Scanner(System.in);
 
@@ -20,7 +26,7 @@ public class Client {
                     2 - Index a URL
                     3 - Exit
                     --------------------------
-                    > """);
+                    >""");
                 String message = scanner.nextLine();
                 if (message.equals("3")) {
                     System.out.println("Goodbye");
@@ -35,7 +41,6 @@ public class Client {
                     server.indexURL(message);
                 } else {
                     System.out.println("Invalid option");
-                    continue;
                 }
             }
             scanner.close();
