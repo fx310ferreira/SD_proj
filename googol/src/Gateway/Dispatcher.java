@@ -10,11 +10,12 @@ public class Dispatcher {
 
     synchronized void push(String url) {
         url_queue.add(url);
+        System.out.println(url_queue);
         notify();
     }
 
     synchronized String pop(){
-        while(!url_queue.isEmpty())
+        while(url_queue.isEmpty())
             try {
                 wait();
             } catch (Exception e) {
