@@ -1,6 +1,8 @@
 package com.client;
+import java.io.InputStream;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
+import java.util.Properties;
 import java.util.Scanner;
 
 import com.common.GatewayInt;
@@ -8,15 +10,44 @@ import com.common.GatewayInt;
 
 public class Client {
 
-    public static void main(String[] args) {
-        try {
-            String rmi_address = "localhost";
-            if(args.length != 1){
-                System.out.println("WRONG NUMBER OF PARAMS: defaulting to localhost");
-            }else{
-                rmi_address = args[0];
+    String rmiAddress;
+
+    public Client() {
+        this.rmiAddress = readRMIAddress();
+    }
+
+    String readRMIAddress() {
+        final String propertiesFile = "config.properties";
+        String defaultAddress = "localhost";
+
+        try (InputStream input = Client.class.getClassLoader().getResourceAsStream(propertiesFile)) {
+            if (input == null){
+                System.out.println("Unable to find " + propertiesFile + " defaulting to: " + defaultAddress);
+                return defaultAddress;
             }
-            GatewayInt server = (GatewayInt) Naming.lookup("rmi://" + rmi_address +"/gateway");
+
+            Properties prop = new Properties();
+            prop.load(input);
+
+            if (prop.getProperty("rmiAddress") != null) {
+                System.out.println("Using address: " + prop.getProperty("rmiAddress"));
+                return prop.getProperty("rmiAddress");
+            }else {
+                System.out.println("Unable to find property defaulting to: " + defaultAddress);
+                return defaultAddress;
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error reading " + propertiesFile + " defaulting to: " + defaultAddress);
+            return defaultAddress;
+        }
+    }
+
+    public static void main(String[] args) {
+        Client client = new Client();
+
+        try {
+            GatewayInt server = (GatewayInt) Naming.lookup("rmi://" + client.rmiAddress +"/gateway");
 
             Scanner scanner = new Scanner(System.in);
 
