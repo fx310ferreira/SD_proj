@@ -34,7 +34,6 @@ public class Gateway extends UnicastRemoteObject implements GatewayInt {
             for (int i = 0; i < gateway.downloaderNumber; i++) {
                 new Downloader(gateway.dispatcher, i).start();
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }

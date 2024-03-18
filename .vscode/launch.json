@@ -9,7 +9,8 @@
             "name": "Client",
             "request": "launch",
             "mainClass": "Client.Client",
-            "projectName": "SD_proj_bf4b7605"
+            "projectName": "SD_proj_bf4b7605",
+            "args": "194.210.175.180:1099"
         },
         {
             "type": "java",
@@ -30,7 +31,7 @@
             "request": "launch",
             "mainClass": "Client",
             "projectName": "SD_proj_bf4b7605",
-            "args": "localhost"
+            "args": "194.210.175.180:1099"
         },
         {
             "type": "java",
