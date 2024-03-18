@@ -8,9 +8,15 @@
             "type": "java",
             "name": "Client",
             "request": "launch",
+            "mainClass": "com.client.Client",
+            "projectName": "client"
+        },
+        {
+            "type": "java",
+            "name": "Client",
+            "request": "launch",
             "mainClass": "Client.Client",
-            "projectName": "SD_proj_bf4b7605",
-            "args": "194.210.175.180:1099"
+            "projectName": "SD_proj_bf4b7605"
         },
         {
             "type": "java",
