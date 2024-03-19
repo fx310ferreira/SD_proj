@@ -1,6 +1,7 @@
 ```bash
 #client
-./gradlew client:run --args="{ip addres}"
+# Change resources to change IP
+./gradlew client:run
 
 #server
 ./gradlew gateway:run 
