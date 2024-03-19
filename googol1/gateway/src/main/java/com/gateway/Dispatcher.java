@@ -1,20 +1,26 @@
 package com.gateway;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.rmi.server.UnicastRemoteObject;
+import java.rmi.RemoteException;
 
-public class Dispatcher {
+import com.common.DispatcherInt;
+
+public class Dispatcher extends UnicastRemoteObject implements DispatcherInt{
     ConcurrentLinkedQueue<String> url_queue;
 
-    public Dispatcher(){
+    public Dispatcher() throws RemoteException{
         url_queue = new ConcurrentLinkedQueue<>();
     }
 
-    synchronized void push(String url) {
+    @Override
+    public synchronized void push(String url) {
         url_queue.add(url);
-        System.out.println(url_queue);
+        System.out.println("Pushed:" + url_queue);
         notify();
     }
 
-    synchronized String pop(){
+    @Override
+    public synchronized String pop(){
         while(url_queue.isEmpty())
             try {
                 wait();
@@ -23,6 +29,7 @@ public class Dispatcher {
             }
         String url = url_queue.poll();
         notify();
+        System.out.println("Pooped:" + url_queue);
         return url;
     }
 

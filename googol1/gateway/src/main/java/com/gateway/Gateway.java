@@ -7,7 +7,6 @@ import com.common.GatewayInt;
 public class Gateway extends UnicastRemoteObject implements GatewayInt {
 
     Dispatcher dispatcher;
-    int downloaderNumber = 5;
 
     protected Gateway() throws RemoteException {
         super();
@@ -31,11 +30,9 @@ public class Gateway extends UnicastRemoteObject implements GatewayInt {
             Gateway gateway = new Gateway();
             java.rmi.registry.LocateRegistry.createRegistry(1099);
             java.rmi.Naming.rebind("gateway", gateway);
+            java.rmi.Naming.rebind("dispatcher", gateway.dispatcher);
             System.out.println("Gateway is running...");
 
-            for (int i = 0; i < gateway.downloaderNumber; i++) {
-                new Downloader(gateway.dispatcher, i).start();
-            }
         } catch (Exception e) {
             e.printStackTrace();
         }
