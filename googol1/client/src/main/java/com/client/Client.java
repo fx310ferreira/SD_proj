@@ -1,5 +1,7 @@
 package com.client;
+import java.net.MalformedURLException;
 import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.Scanner;
 
@@ -9,10 +11,10 @@ import com.utils.Utils;
 
 public class Client {
 
-    String rmiAddress;
+    String RMI_ADDRESS;
 
     public Client() {
-        this.rmiAddress = Utils.readProperties(this, "rmiAddress", "localhost");
+        this.RMI_ADDRESS = Utils.readProperties(this, "RMI_ADDRESS", "localhost");
     }
 
 
@@ -20,7 +22,7 @@ public class Client {
         Client client = new Client();
 
         try {
-            GatewayInt server = (GatewayInt) Naming.lookup("rmi://" + client.rmiAddress +"/gateway");
+            GatewayInt server = (GatewayInt) Naming.lookup("rmi://" + client.RMI_ADDRESS +"/gateway");
 
             Scanner scanner = new Scanner(System.in);
 
@@ -58,10 +60,8 @@ public class Client {
             }
             scanner.close();
         }
-        catch (RemoteException e) {
-            System.out.println("Gateway is down please ty again later");
-        } catch (Exception e) {
-            e.printStackTrace();
+        catch (RemoteException | NotBoundException | MalformedURLException e) {
+            System.out.println("Gateway is down please try again later");
         }
     }
 }

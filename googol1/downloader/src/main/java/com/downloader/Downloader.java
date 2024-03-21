@@ -3,11 +3,9 @@ package com.downloader;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
-import java.net.NetworkInterface;
 import java.rmi.Naming;
-import java.rmi.RemoteException;
+import java.rmi.NotBoundException;
 
 import com.utils.Utils;
 import org.jsoup.HttpStatusException;
@@ -19,17 +17,21 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 public class Downloader {
-    String rmiAddress;
+    String RMI_ADDRESS;
+    int PORT;
+    String MULTICAST_ADDRESS;
     DispatcherInt dispatcher;
     MulticastSocket socket;
     InetAddress mcastGroup;
-    int PORT;
-    String mcastAddress;
 
-    public Downloader() {
-        this.rmiAddress = Utils.readProperties(this, "rmiAddress", "localhost");
-        this.PORT = Integer.parseInt(Utils.readProperties(this, "port", "4321"));
-        this.mcastAddress = Utils.readProperties(this, "multicastAddress", "224.3.2.1");
+
+    public Downloader() throws IOException, NotBoundException {
+        this.RMI_ADDRESS = Utils.readProperties(this, "RMI_ADDRESS", "localhost");
+        this.PORT = Integer.parseInt(Utils.readProperties(this, "PORT", "4321"));
+        this.MULTICAST_ADDRESS = Utils.readProperties(this, "MULTICAST_ADDRESS", "224.3.2.1");
+        this.dispatcher = (DispatcherInt) Naming.lookup("rmi://" + this.RMI_ADDRESS +"/dispatcher");
+        this.socket =  new MulticastSocket(this.PORT);
+        this.mcastGroup = InetAddress.getByName(this.MULTICAST_ADDRESS);
     }
 
     void download(String url) {
@@ -60,14 +62,8 @@ public class Downloader {
     }
 
     public static void main(String[] args) {
-        Downloader downloader = new Downloader();
-
         try {
-            downloader.dispatcher = (DispatcherInt) Naming.lookup("rmi://" + downloader.rmiAddress +"/dispatcher");
-
-            downloader.socket =  new MulticastSocket(downloader.PORT);
-            downloader.mcastGroup = InetAddress.getByName(downloader.mcastAddress);
-
+            Downloader downloader = new Downloader();
 
             System.out.println("Downloader is ready");
             while (true) {
@@ -76,12 +72,9 @@ public class Downloader {
                 System.out.println("Downloader pooped url: " + url);
                 downloader.download(url);
                 downloader.multicastMsg(url);
-                Thread.sleep(1000);
             }
-        } catch (RemoteException e){
-            System.out.println("Gateway is down please ty again later");
-        } catch (Exception e){
-            e.printStackTrace();
+        } catch (IOException | NotBoundException e){
+            System.err.println("Gateway is down please ty again later");
         }
     }
 }

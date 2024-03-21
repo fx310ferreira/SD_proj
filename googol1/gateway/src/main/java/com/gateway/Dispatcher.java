@@ -20,7 +20,7 @@ public class Dispatcher extends UnicastRemoteObject implements DispatcherInt{
         if(!processed.contains(url)){
             url_queue.add(url);
             processed.add(url);
-            System.out.println("Pushed:" + url + "Size: " + url_queue.size());
+            System.out.println("Pushed: " + url + " Size: " + url_queue.size());
             System.out.println("Processed size:" + processed.size());
             notify();
         }
@@ -35,8 +35,8 @@ public class Dispatcher extends UnicastRemoteObject implements DispatcherInt{
                 System.out.println("interruptedException caught");
             }
         String url = url_queue.poll();
-        notify();
-        System.out.println("Pooped:" + url + " Size: " + url_queue.size());
+        notify(); // this notify is probably useless
+        System.out.println("Pooped: " + url + " Size: " + url_queue.size());
         return url;
     }
 

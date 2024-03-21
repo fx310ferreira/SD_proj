@@ -1,16 +1,13 @@
 # SD
 
 ### Things to solve
- - [ ] if a downloader dies the page it is indexing stops getting indexed
- - [ ] Currently we are not indexing the same this URL more than once, this is only partially correct we should only index it once
+ - [ ] If a downloader dies the page it is indexing stops getting indexed
+ - [ ] Currently, we are not indexing the same this URL more than once, this is only partially correct we should only index it once,
  but we should send it to the barrels for metrics
  - [ ] Words
- - [ ] Data storage
- - [ ] Should we search small words
+ - [x] Data storage: start by storing all the multicast messages sent
+ - [x] Should we search small words: yes
  - [ ] Wierd things happen when we close programs ask the teacher
- - [ ] How big are the messages we can send
- - [ ] Missing communication between gateway and barrel
+ - [x] How big are the messages we can send: 1400B / 64KB
  - [ ] Barrel code is ugly fix it
- - [ ] How should general exceptions be handled
- - [ ] What should we use for logging
- - [ ] An acctually usefull readme
+ - [ ] An actually usefull readme

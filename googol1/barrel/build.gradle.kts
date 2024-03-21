@@ -5,3 +5,7 @@ plugins {
 application {
     mainClass = "com.barrel.Barrel"
 }
+
+dependencies {
+    implementation(project(":common"))
+}
