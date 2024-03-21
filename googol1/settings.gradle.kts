@@ -8,3 +8,4 @@
 rootProject.name = "googol1"
 
 include("common", "client", "gateway", "downloader")
+include("barrel")

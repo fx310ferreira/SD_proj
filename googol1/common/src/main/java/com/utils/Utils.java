@@ -4,30 +4,35 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public class Utils {
-    public static  String readRMIAddress(Object obj) {
-        final String propertiesFile = "config.properties";
-        String defaultAddress = "localhost";
+
+        public static  String readProperties(Object obj, String filed, String defaultVal){
+            final String propertiesFile = "config.properties";
+            return readProperties(obj, filed, defaultVal, propertiesFile);
+        }
+
+
+        public static  String readProperties(Object obj, String filed, String defaultVal, String propertiesFile) {
 
         try (InputStream input = obj.getClass().getClassLoader().getResourceAsStream(propertiesFile)) {
             if (input == null){
-                System.out.println("Unable to find " + propertiesFile + " defaulting to: " + defaultAddress);
-                return defaultAddress;
+                System.out.println("Unable to find " + propertiesFile + " defaulting to: " + defaultVal);
+                return defaultVal;
             }
 
             Properties prop = new Properties();
             prop.load(input);
 
             if (prop.getProperty("rmiAddress") != null) {
-                System.out.println("Using address: " + prop.getProperty("rmiAddress"));
-                return prop.getProperty("rmiAddress");
+                System.out.println("Using address: " + prop.getProperty(filed));
+                return prop.getProperty(filed);
             }else {
-                System.out.println("Unable to find property defaulting to: " + defaultAddress);
-                return defaultAddress;
+                System.out.println("Unable to find property defaulting to: " + defaultVal);
+                return defaultVal;
             }
 
         } catch (Exception e) {
-            System.err.println("Error reading " + propertiesFile + " defaulting to: " + defaultAddress);
-            return defaultAddress;
+            System.err.println("Error reading " + propertiesFile + " defaulting to: " + defaultVal);
+            return defaultVal;
         }
     }
 

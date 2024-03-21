@@ -12,7 +12,7 @@ public class Client {
     String rmiAddress;
 
     public Client() {
-        this.rmiAddress = Utils.readRMIAddress(this);
+        this.rmiAddress = Utils.readProperties(this, "rmiAddress", "localhost");
     }
 
 
