@@ -33,6 +33,8 @@ public class Barrel extends UnicastRemoteObject implements BarrelInt {
     }
     public static void main(String[] args){
         Barrel barrel = null;
+        Database database = new Database();
+        database.getConnection();
         try {
             barrel = new Barrel();
         } catch (RemoteException e) {
