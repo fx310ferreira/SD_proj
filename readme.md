@@ -11,10 +11,10 @@ As dependencies:
 # Before running you should have the database setup on docker
 
 # Windows
-./docker/setup.bat
+./docker/run.bat
 
 # Unix
-./docker/setup.sh
+./docker/run.sh
 
 # Run Client this has a  bug because of gradle
 gralde client:run
