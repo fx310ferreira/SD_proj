@@ -10,4 +10,10 @@ plugins {
 
 subprojects {
     apply(plugin = "java")
+
+    tasks.withType<JavaExec> {
+        if (name == "run") {
+            standardInput = System.`in`
+        }
+    }
 }
