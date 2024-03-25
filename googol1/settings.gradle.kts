@@ -7,5 +7,8 @@
 
 rootProject.name = "googol1"
 
-include("common", "client", "gateway", "downloader")
+include("common")
 include("barrel")
+include("client")
+include("gateway")
+include("downloader")

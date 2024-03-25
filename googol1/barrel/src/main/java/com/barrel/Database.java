@@ -6,7 +6,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 public class Database {
 
@@ -42,7 +41,6 @@ public class Database {
     void initDB(Connection conn) throws SQLException {
         System.out.println("Initializing database");
         conn.createStatement().execute("CREATE SCHEMA " + this.DB_ID);
-
     }
 
     Connection createDB() throws SQLException {
