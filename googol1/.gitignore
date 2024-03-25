@@ -6,6 +6,8 @@ build
 
 .vscode
 
+.settings
+
 *.hprof
 
 *.class
