@@ -28,3 +28,17 @@ gradle barrel:run
 # Run downloaders
 gradle downloader:run
 ```
+
+
+## Managing DB
+```bash
+# Connect using psql
+# change depending on docker parameters
+psql -h localhost -p 5433 -u user
+
+# List databases
+\list
+
+
+```
+

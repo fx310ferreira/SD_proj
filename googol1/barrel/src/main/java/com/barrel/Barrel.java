@@ -14,17 +14,20 @@ import java.net.NetworkInterface;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.sql.SQLException;
 
 public class Barrel extends UnicastRemoteObject implements BarrelInt {
     int PORT;
     String MULTICAST_ADDRESS;
     String RMI_ADDRESS;
+    String BARREL_ID;
 
     Barrel() throws RemoteException {
         super();
         this.PORT = Integer.parseInt(Utils.readProperties(this, "PORT", "4321"));
         this.MULTICAST_ADDRESS = Utils.readProperties(this, "MULTICAST_ADDRESS", "224.3.2.1");
         this.RMI_ADDRESS = Utils.readProperties(this, "RMI_ADDRESS", "localhost");
+        this.BARREL_ID = Utils.readProperties(this, "BARREL_ID", "barrel0");
     }
 
     @Override
@@ -33,12 +36,17 @@ public class Barrel extends UnicastRemoteObject implements BarrelInt {
     }
     public static void main(String[] args){
         Barrel barrel = null;
-        Database database = new Database();
-        database.getConnection();
+        Database database = null;
         try {
             barrel = new Barrel();
+            database = new Database(barrel.BARREL_ID);
+            // TODO split this errors
         } catch (RemoteException e) {
-            throw new RuntimeException(e);
+            System.err.println("Error connecting to rmi: " + e.getMessage());
+            System.exit(0);
+        } catch (SQLException e){
+            System.err.println("Error connecting to the database: " + e.getMessage());
+            System.exit(0);
         }
         try (MulticastSocket socket = new MulticastSocket(barrel.PORT)) {
             InetAddress mcastAddr = InetAddress.getByName(barrel.MULTICAST_ADDRESS);
