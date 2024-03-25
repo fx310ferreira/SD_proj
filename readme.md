@@ -34,7 +34,7 @@ gradle downloader:run
 ```bash
 # Connect using psql
 # change depending on docker parameters
-psql -h localhost -p 5433 -u user
+psql -h localhost -p 5433 -U user
 
 # List databases
 \list
