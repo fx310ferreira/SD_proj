@@ -11,3 +11,6 @@
  - [x] How big are the messages we can send: 1400B / 64KB
  - [ ] Barrel code is ugly fix it
  - [ ] An actually usefull readme
+ - [ ] Add barrel_id to subscribe to make it impossible that 2 barrels have the same id at the same time
+ - [ ] Add possibility for auto ID, the id can be defined iterating all currently opened barrels and the first barrelX available
+ - [ ] Add protection for possible sql injection in barrelID

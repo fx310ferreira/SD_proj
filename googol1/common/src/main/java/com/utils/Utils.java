@@ -22,7 +22,7 @@ public class Utils {
             Properties prop = new Properties();
             prop.load(input);
 
-            if (prop.getProperty("rmiAddress") != null) {
+            if (prop.getProperty(filed) != null) {
                 System.out.println("Using address: " + prop.getProperty(filed));
                 return prop.getProperty(filed);
             }else {
