@@ -24,39 +24,48 @@ public class Downloader {
     MulticastSocket socket;
     InetAddress mcastGroup;
 
-
     public Downloader() throws IOException, NotBoundException {
         this.RMI_ADDRESS = Utils.readProperties(this, "RMI_ADDRESS", "localhost");
         this.PORT = Integer.parseInt(Utils.readProperties(this, "PORT", "4321"));
         this.MULTICAST_ADDRESS = Utils.readProperties(this, "MULTICAST_ADDRESS", "224.3.2.1");
-        this.dispatcher = (DispatcherInt) Naming.lookup("rmi://" + this.RMI_ADDRESS +"/dispatcher");
-        this.socket =  new MulticastSocket(this.PORT);
+        this.dispatcher = (DispatcherInt) Naming.lookup("rmi://" + this.RMI_ADDRESS + "/dispatcher");
+        this.socket = new MulticastSocket(this.PORT);
         this.mcastGroup = InetAddress.getByName(this.MULTICAST_ADDRESS);
     }
 
     void download(String url) {
         try {
             Document doc = Jsoup.connect(url).get();
-            System.out.println("Downloader downloaded: " + doc.title());
-            Elements elements = doc.select("a[href]");
+            String text = doc.text();
 
-            for(Element element : elements){
+            // Remove espaços, tabulações e quebras de linha
+            String[] words = text.split("\\s+");
+            for (String word : words) {
+                // Remove pontuação, acentos e converte maiúsculas para minúsculas
+                word = word.replaceAll("\\p{Punct}", "").replaceAll("[^\\p{ASCII}]", "").toLowerCase();
+                if (!word.isEmpty()) {
+                    this.dispatcher.push(word);
+                }
+            }
+
+            Elements elements = doc.select("a[href]");
+            for (Element element : elements) {
                 String link = element.attr("abs:href");
                 this.dispatcher.push(link);
             }
-        } catch (HttpStatusException e){
+        } catch (HttpStatusException e) {
             System.out.println("Downloader failed to download: " + e.getUrl() + " " + e.getStatusCode());
-        } catch (Exception e){
+        } catch (IOException e) {
             System.out.println("Downloader failed to download: " + e.getMessage());
         }
     }
 
-    void multicastMsg(String content){
+    void multicastMsg(String content) {
         try {
             byte[] buffer = content.getBytes();
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length, this.mcastGroup, this.PORT);
             this.socket.send(packet);
-        } catch (IOException e){
+        } catch (IOException e) {
             System.err.println("Error sending a multicast message: " + e.getMessage());
         }
     }
@@ -73,7 +82,7 @@ public class Downloader {
                 downloader.download(url);
                 downloader.multicastMsg(url);
             }
-        } catch (IOException | NotBoundException e){
+        } catch (IOException | NotBoundException e) {
             System.err.println("Gateway is down please ty again later");
         }
     }
