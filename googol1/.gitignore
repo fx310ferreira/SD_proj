@@ -13,3 +13,6 @@ build
 *.class
 
 .idea
+
+.project
+.classpath
