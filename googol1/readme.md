@@ -15,3 +15,4 @@
  - [x] Add protection for possible sql injection in barrelID
  - [x] On dispatcher push don't add if the link does not start
  - [ ] Dispatcher precessed queue behaviour
+ - [ ] Think in a way for us not to have inactive barrels inside the array list
