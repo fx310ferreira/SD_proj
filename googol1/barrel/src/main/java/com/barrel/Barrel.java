@@ -52,7 +52,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInt {
             socket.joinGroup(new InetSocketAddress(mcastAddr, 0), NetworkInterface.getByIndex(0));
 
             GatewayBarrelInt server = (GatewayBarrelInt) Naming.lookup("rmi://" + barrel.RMI_ADDRESS +"/barrels");
-            server.subscribe(barrel);
+            server.subscribe(barrel, barrel.BARREL_ID);
             System.out.println("Barrel is ready");
             while(true){
                 byte[] buffer = new byte[256];
