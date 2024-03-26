@@ -40,7 +40,6 @@ public class Barrel extends UnicastRemoteObject implements BarrelInt {
         try {
             barrel = new Barrel();
             database = new Database(barrel.BARREL_ID);
-            // TODO split this errors
         } catch (RemoteException e) {
             System.err.println("Error connecting to rmi: " + e.getMessage());
             System.exit(0);

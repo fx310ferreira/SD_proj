@@ -51,7 +51,11 @@ public class Client {
                     case "2":
                         System.out.print("Enter the URL: ");
                         message = scanner.nextLine();
-                        server.indexURL(message);
+                        if((message.startsWith("http://") || message.startsWith("https://"))){
+                            server.indexURL(message);
+                        } else {
+                            System.out.println("Invalid link write an absolute link like: http://google.com");
+                        }
                         break;
                     default:
                         System.out.println("Invalid option");

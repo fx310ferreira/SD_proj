@@ -6,6 +6,7 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
+import java.util.Arrays;
 
 import com.utils.Utils;
 import org.jsoup.HttpStatusException;
@@ -39,14 +40,16 @@ public class Downloader {
             String text = doc.text();
 
             // Remove espaços, tabulações e quebras de linha
+            text = text.replaceAll("\\p{Punct}", "").replaceAll("[^\\p{ASCII}]", "").toLowerCase();
             String[] words = text.split("\\s+");
-            for (String word : words) {
-                // Remove pontuação, acentos e converte maiúsculas para minúsculas
-                word = word.replaceAll("\\p{Punct}", "").replaceAll("[^\\p{ASCII}]", "").toLowerCase();
-                if (!word.isEmpty()) {
-                    this.dispatcher.push(word);
-                }
-            }
+            System.out.println(Arrays.toString(words));
+//            for (String word : words) {
+//                // Remove pontuação, acentos e converte maiúsculas para minúsculas
+//                word = word.replaceAll("\\p{Punct}", "").replaceAll("[^\\p{ASCII}]", "").toLowerCase();
+//                if (!word.isEmpty()) {
+//
+//                }
+//            }
 
             Elements elements = doc.select("a[href]");
             for (Element element : elements) {
@@ -54,9 +57,11 @@ public class Downloader {
                 this.dispatcher.push(link);
             }
         } catch (HttpStatusException e) {
-            System.out.println("Downloader failed to download: " + e.getUrl() + " " + e.getStatusCode());
+            System.err.println("Downloader failed to download: " + e.getUrl() + " " + e.getStatusCode());
         } catch (IOException e) {
-            System.out.println("Downloader failed to download: " + e.getMessage());
+            System.err.println("Downloader failed to download: " + e.getMessage());
+        } catch (IllegalArgumentException e){
+            System.out.println("Invalid link");
         }
     }
 

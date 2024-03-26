@@ -17,11 +17,11 @@ public class Dispatcher extends UnicastRemoteObject implements DispatcherInt{
 
     @Override
     public synchronized void push(String url) {
-        if(!processed.contains(url)){
+        if(!processed.contains(url) && (url.startsWith("http://") || url.startsWith("https://"))){
             url_queue.add(url);
             processed.add(url);
             System.out.println("Pushed: " + url + " Size: " + url_queue.size());
-            System.out.println("Processed size:" + processed.size());
+            System.out.println("Processed size:" + (processed.size() - url_queue.size()));
             notify();
         }
     }
