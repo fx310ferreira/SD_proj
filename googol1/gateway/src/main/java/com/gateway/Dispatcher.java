@@ -36,7 +36,6 @@ public class Dispatcher extends UnicastRemoteObject implements DispatcherInt{
             }
         String url = url_queue.poll();
         processing.add(url);
-        notify(); // this notify is probably useless
         System.out.println("Processing: " + processing);
         return url;
     }
