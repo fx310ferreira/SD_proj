@@ -10,31 +10,35 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GatewayBarrel extends UnicastRemoteObject implements GatewayBarrelInt {
-    ArrayList<BarrelInt> barrels;
-    Map<String, BarrelInt> subscribedBarrels;
+    ArrayList<String> barrel_ids;
+    Map<String, BarrelInt> barrels;
 
     GatewayBarrel() throws RemoteException {
         super();
-        this.barrels = new ArrayList<>();
-        this.subscribedBarrels = new HashMap<>();
+        this.barrel_ids = new ArrayList<>();
+        this.barrels = new HashMap<>();
     }
 
-    public void message(String message) {
-        if(barrels.isEmpty())
-            System.out.println("No barrels found");
-        else{
+    private BarrelInt getBarrel() throws RuntimeException{
+        if(barrel_ids.isEmpty())
+            throw new RuntimeException("No barrels available");
+        return barrels.get(barrel_ids.get(0));
+    }
+
+    @Override
+    public boolean indexedUrl(String message) {
             try {
-                barrels.get(0).test(message);
+                return getBarrel().indexedUrl(message);
             } catch (RemoteException e) {
                 throw new RuntimeException(e);
             }
-        }
     }
 
     @Override
     public synchronized void subscribe(BarrelInt barrel, String barrelId) throws RemoteException {
-        if (!subscribedBarrels.containsKey(barrelId)) {
-            subscribedBarrels.put(barrelId, barrel);
+        if (!barrels.containsKey(barrelId)) {
+            barrels.put(barrelId, barrel);
+            barrel_ids.add(barrelId);
             System.out.println("Barrel with ID " + barrelId + " subscribed.");
         } else {
             System.out.println("Barrel with ID " + barrelId + " is already subscribed.");

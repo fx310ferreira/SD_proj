@@ -21,6 +21,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInt {
     String MULTICAST_ADDRESS;
     String RMI_ADDRESS;
     String BARREL_ID;
+    Database database;
 
     Barrel() throws RemoteException {
         super();
@@ -31,16 +32,16 @@ public class Barrel extends UnicastRemoteObject implements BarrelInt {
     }
 
     @Override
-    public void test(String str) throws RemoteException {
-        System.out.println(str);
+    public boolean indexedUrl(String url) throws RemoteException {
+        return database.indexedUrl(url);
     }
 
     public static void main(String[] args){
         Barrel barrel = null;
-        Database database = null;
+
         try {
             barrel = new Barrel();
-            database = new Database(barrel.BARREL_ID);
+            barrel.database = new Database(barrel.BARREL_ID);
         } catch (RemoteException e) {
             System.err.println("Error connecting to rmi: " + e.getMessage());
             System.exit(0);
@@ -61,7 +62,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInt {
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
                 socket.receive(packet);
                 String message = new String(packet.getData(), 0, packet.getLength());
-                System.out.println("Got message: " + message);
+                barrel.database.indexUrl(message, new String[]{});
             }
         } catch (IOException e) {
             e.printStackTrace();

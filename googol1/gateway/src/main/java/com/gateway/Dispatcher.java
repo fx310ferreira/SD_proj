@@ -12,9 +12,12 @@ public class Dispatcher extends UnicastRemoteObject implements DispatcherInt{
     ConcurrentLinkedQueue<String> url_queue;
     Set<String> processing;
 
-    public Dispatcher() throws RemoteException{
-        url_queue = new ConcurrentLinkedQueue<>();
-        processing = new ConcurrentSkipListSet<>();
+    GatewayBarrel gatewayBarrel;
+
+    public Dispatcher(GatewayBarrel gatewayBarrel) throws RemoteException{
+        this.url_queue = new ConcurrentLinkedQueue<>();
+        this.processing = new ConcurrentSkipListSet<>();
+        this.gatewayBarrel = gatewayBarrel;
     }
 
     @Override
@@ -43,6 +46,11 @@ public class Dispatcher extends UnicastRemoteObject implements DispatcherInt{
     @Override
     public void finishedProcessing(String url) throws RemoteException {
         processing.remove(url);
+    }
+
+    @Override
+    public boolean indexedUrl(String url) throws RemoteException {
+        return (processing.contains(url) || url_queue.contains(url) || gatewayBarrel.indexedUrl(url));
     }
 
     @Override

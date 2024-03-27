@@ -4,8 +4,10 @@ import com.utils.Utils;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class Database {
 
@@ -38,12 +40,47 @@ public class Database {
         }
     }
 
-    void initDB(Connection conn) throws SQLException {
+    private void initDB(Connection conn) throws SQLException {
         System.out.println("Initializing database");
-        conn.createStatement().execute("CREATE SCHEMA " + this.DB_ID);
+        String statement = """
+                CREATE TABLE words (
+                    id   BIGSERIAL,
+                    word VARCHAR(128) NOT NULL,
+                    PRIMARY KEY(id)
+                );
+
+                CREATE TABLE links (
+                    id   BIGSERIAL,
+                    link     VARCHAR(512) NOT NULL,
+                    searches BIGINT NOT NULL DEFAULT 0,
+                    indexed  BOOLEAN NOT NULL DEFAULT FALSE,
+                    PRIMARY KEY(id)
+                );
+
+                CREATE TABLE words_links (
+                    count    INTEGER,
+                    links_id BIGINT,
+                    words_id BIGINT,
+                    PRIMARY KEY(links_id,words_id)
+                );
+
+                CREATE TABLE links_links (
+                    links_id     BIGINT,
+                    links_id1 BIGINT,
+                    PRIMARY KEY(links_id,links_id1)
+                );
+
+                ALTER TABLE words ADD UNIQUE (word);
+                ALTER TABLE links ADD UNIQUE (link);
+                ALTER TABLE words_links ADD CONSTRAINT words_links_fk1 FOREIGN KEY (links_id) REFERENCES links(id);
+                ALTER TABLE words_links ADD CONSTRAINT words_links_fk2 FOREIGN KEY (words_id) REFERENCES words(id);
+                ALTER TABLE links_links ADD CONSTRAINT links_links_fk1 FOREIGN KEY (links_id) REFERENCES links(id);
+                ALTER TABLE links_links ADD CONSTRAINT links_links_fk2 FOREIGN KEY (links_id1) REFERENCES links(id);
+                """;
+        conn.createStatement().execute(statement);
     }
 
-    Connection createDB() throws SQLException {
+    private Connection createDB() throws SQLException {
         System.out.println("Attempting to create DB");
 
         Connection conn = DriverManager.getConnection(this.DB_URL, this.USER, this.PASSWORD);
@@ -65,5 +102,84 @@ public class Database {
             System.out.println("Database " + this.DB_ID + " already exists.");
         }
         return DriverManager.getConnection(this.DB_URL  + this.DB_ID, this.USER, this.PASSWORD);
+    }
+
+    long indexUrl(String url, String[] words) {
+        System.out.println("Indexing URL: " + url);
+        long linkId = getLinkId(url);
+        if (linkId == -1) {
+            System.out.println("Failed to index URL: " + url);
+            return -1;
+        }
+//        for (String word : words) {
+//            int wordId = getWordId(word);
+//            if (wordId == -1) {
+//                System.out.println("Failed to index word: " + word);
+//                return -1;
+//            }
+//            if (!indexWordLink(wordId, linkId)) {
+//                System.out.println("Failed to index word link: " + word + " " + url);
+//                return -1;
+//            }
+//        }
+        return linkId;
+    }
+
+    long getLinkId(String url) {
+        System.out.println("Getting link ID for URL: " + url);
+        String stmt = "SELECT id FROM links WHERE link = ? AND indexed = FALSE;";
+        try {
+            PreparedStatement statement = connection.prepareStatement(stmt);
+            statement.setString(1, url);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                long linkId = resultSet.getLong("id");
+                System.out.println("Link ID for URL " + url + " is " + linkId);
+                return linkId;
+            } else {
+                System.out.println("Link ID not found for URL: " + url + " Inserting URL");
+                return insertUrl(url);
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to get link ID for URL: " + url);
+        }
+        return -1;
+    }
+    long insertUrl(String url) {
+        System.out.println("Inserting URL: " + url);
+        String stmt = "INSERT INTO links (link) VALUES (?) RETURNING id;";
+        long id;
+        try {
+            PreparedStatement statement = connection.prepareStatement(stmt);
+            statement.setString(1, url);
+            ResultSet res = statement.executeQuery();
+            res.next();
+            id = res.getLong("id");
+            System.out.println("Inserted URL: " + url);
+        } catch (SQLException e) {
+            System.out.println("Failed to insert URL: " + e.getMessage());
+            return -1;
+        }
+        return id;
+    }
+
+    boolean indexedUrl(String url){
+        System.out.println("Verifying if URL is indexed: " + url);
+        String stmt = "SELECT indexed FROM links WHERE link = ? AND indexed = TRUE;";
+        try {
+            PreparedStatement statement = connection.prepareStatement(stmt);
+            statement.setString(1, url);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                System.out.println("URL is indexed: " + url);
+                return true;
+            } else {
+                System.out.println("URL is not indexed: " + url);
+                return false;
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to verify if URL is indexed: " + url);
+        }
+        return false;
     }
 }

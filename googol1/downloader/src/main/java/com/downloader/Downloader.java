@@ -54,7 +54,11 @@ public class Downloader {
             Elements elements = doc.select("a[href]");
             for (Element element : elements) {
                 String link = element.attr("abs:href");
-                this.dispatcher.push(link);
+                if(dispatcher.indexedUrl(url)){
+                    System.out.println("Link already indexed: " + url);
+                } else {
+                    this.dispatcher.push(link);
+                }
             }
         } catch (HttpStatusException e) {
             System.err.println("Downloader failed to download: " + e.getUrl() + " " + e.getStatusCode());

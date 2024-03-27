@@ -16,20 +16,25 @@ public class Gateway extends UnicastRemoteObject implements GatewayInt {
         super();
         this.PORT = Integer.parseInt(Utils.readProperties(this, "PORT", "1099"));
         this.gatewayBarrel = new GatewayBarrel();
-        this.dispatcher = new Dispatcher();
+        this.dispatcher = new Dispatcher(this.gatewayBarrel);
     }
 
 
     @Override
-    public void indexURL(String url) throws RemoteException {
+    public boolean indexURL(String url) throws RemoteException {
+        if (dispatcher.indexedUrl(url)) {
+            System.out.println("Already indexed: " + url);
+            return false;
+        }
         System.out.println("Indexing " + url);
         dispatcher.push(url);
+        return true;
     }
 
     @Override
     public void search(String query) throws RemoteException {
         System.out.println("Searching for " + query);
-        gatewayBarrel.message(query);
+//        gatewayBarrel.message(query);
     }
 
     public static void main(String[] args) {

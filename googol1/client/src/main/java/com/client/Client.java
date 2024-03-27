@@ -52,7 +52,11 @@ public class Client {
                         System.out.print("Enter the URL: ");
                         message = scanner.nextLine().strip();
                         if((message.startsWith("http://") || message.startsWith("https://"))){
-                            server.indexURL(message);
+                            if (!server.indexURL(message)) {
+                                System.out.println("URL already indexed");
+                            } else {
+                                System.out.println("URL indexed");
+                            }
                         } else {
                             System.out.println("Invalid link write an absolute link like: http://google.com");
                         }
