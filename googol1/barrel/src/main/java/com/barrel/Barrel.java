@@ -34,6 +34,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInt {
     public void test(String str) throws RemoteException {
         System.out.println(str);
     }
+
     public static void main(String[] args){
         Barrel barrel = null;
         Database database = null;
@@ -47,6 +48,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInt {
             System.err.println("Error connecting to the database: " + e.getMessage());
             System.exit(0);
         }
+
         try (MulticastSocket socket = new MulticastSocket(barrel.PORT)) {
             InetAddress mcastAddr = InetAddress.getByName(barrel.MULTICAST_ADDRESS);
             socket.joinGroup(new InetSocketAddress(mcastAddr, 0), NetworkInterface.getByIndex(0));

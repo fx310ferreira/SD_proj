@@ -86,6 +86,7 @@ public class Downloader {
                 System.out.println("Downloader pooped url: " + url);
                 downloader.download(url);
                 downloader.multicastMsg(url);
+                downloader.dispatcher.finishedProcessing(url);
             }
         } catch (IOException | NotBoundException e) {
             System.err.println("Gateway is down please ty again later");

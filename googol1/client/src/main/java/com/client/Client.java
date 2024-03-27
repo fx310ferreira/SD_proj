@@ -38,19 +38,19 @@ public class Client {
                     3 - Exit
                     --------------------------
                     >""");
-                String message = scanner.nextLine();
+                String message = scanner.nextLine().strip();
                 switch (message) {
                     case "3":
                         System.out.println("Goodbye");
                         break label;
                     case "1":
                         System.out.print("Enter the search query: ");
-                        message = scanner.nextLine();
+                        message = scanner.nextLine().strip();
                         server.search(message);
                         break;
                     case "2":
                         System.out.print("Enter the URL: ");
-                        message = scanner.nextLine();
+                        message = scanner.nextLine().strip();
                         if((message.startsWith("http://") || message.startsWith("https://"))){
                             server.indexURL(message);
                         } else {

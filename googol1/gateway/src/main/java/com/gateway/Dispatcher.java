@@ -1,27 +1,27 @@
 package com.gateway;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.rmi.server.UnicastRemoteObject;
 import java.rmi.RemoteException;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import com.common.DispatcherInt;
 
 public class Dispatcher extends UnicastRemoteObject implements DispatcherInt{
     ConcurrentLinkedQueue<String> url_queue;
-    HashSet<String> processed;
+    Set<String> processing;
 
     public Dispatcher() throws RemoteException{
         url_queue = new ConcurrentLinkedQueue<>();
-        processed = new HashSet<>();
+        processing = new ConcurrentSkipListSet<>();
     }
 
     @Override
     public synchronized void push(String url) {
-        if(!processed.contains(url) && (url.startsWith("http://") || url.startsWith("https://"))){
+        if(url.startsWith("http://") || url.startsWith("https://")){
             url_queue.add(url);
-            processed.add(url);
             System.out.println("Pushed: " + url + " Size: " + url_queue.size());
-            System.out.println("Processed size:" + (processed.size() - url_queue.size()));
             notify();
         }
     }
@@ -35,9 +35,15 @@ public class Dispatcher extends UnicastRemoteObject implements DispatcherInt{
                 System.out.println("interruptedException caught");
             }
         String url = url_queue.poll();
+        processing.add(url);
         notify(); // this notify is probably useless
-        System.out.println("Pooped: " + url + " Size: " + url_queue.size());
+        System.out.println("Processing: " + processing);
         return url;
+    }
+
+    @Override
+    public void finishedProcessing(String url) throws RemoteException {
+        processing.remove(url);
     }
 
     @Override
