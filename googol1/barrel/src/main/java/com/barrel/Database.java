@@ -1,6 +1,7 @@
 package com.barrel;
 
 import com.utils.Utils;
+import org.json.JSONArray;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -66,7 +67,8 @@ public class Database {
 
                 CREATE TABLE links_links (
                     links_id     BIGINT,
-                    links_id1 BIGINT,
+                    links_id1    BIGINT,
+                    count INTEGER DEFAULT 1,
                     PRIMARY KEY(links_id,links_id1)
                 );
 
@@ -104,50 +106,63 @@ public class Database {
         return DriverManager.getConnection(this.DB_URL  + this.DB_ID, this.USER, this.PASSWORD);
     }
 
-    long indexUrl(String url, String[] words) {
+    long indexUrl(String url, JSONArray words) {
+        //TODO: missing check if url is already indexed
         System.out.println("Indexing URL: " + url);
-        long linkId = getLinkId(url);
+        long linkId = getUrlId(url);
         if (linkId == -1) {
             System.out.println("Failed to index URL: " + url);
             return -1;
         }
-//        for (String word : words) {
-//            int wordId = getWordId(word);
-//            if (wordId == -1) {
-//                System.out.println("Failed to index word: " + word);
-//                return -1;
-//            }
+
+        for (var word : words) {
+            long wordId = getWordId(word.toString());
+            if (wordId == -1) {
+                System.out.println("Failed to index word: " + word);
+                return -1;
+            }
 //            if (!indexWordLink(wordId, linkId)) {
 //                System.out.println("Failed to index word link: " + word + " " + url);
 //                return -1;
 //            }
-//        }
+        }
         return linkId;
     }
 
-    long getLinkId(String url) {
-        System.out.println("Getting link ID for URL: " + url);
-        String stmt = "SELECT id FROM links WHERE link = ? AND indexed = FALSE;";
+    boolean addLink(String url, String url1){
+        System.out.println("Adding link: " + url + " " + url1);
+        long linkId = getUrlId(url);
+        long linkId1 = getUrlId(url1);
+        if (linkId == -1 || linkId1 == -1) {
+            System.out.println("Failed to add link: " + url + " " + url1);
+            return false;
+        }
+        String stmt = """
+                INSERT INTO links_links (links_id, links_id1)
+                VALUES (?, ?)
+                ON CONFLICT (links_id, links_id1) DO UPDATE
+                SET count = links_links.count + 1
+                """;
         try {
             PreparedStatement statement = connection.prepareStatement(stmt);
-            statement.setString(1, url);
-            ResultSet resultSet = statement.executeQuery();
-            if (resultSet.next()) {
-                long linkId = resultSet.getLong("id");
-                System.out.println("Link ID for URL " + url + " is " + linkId);
-                return linkId;
-            } else {
-                System.out.println("Link ID not found for URL: " + url + " Inserting URL");
-                return insertUrl(url);
-            }
+            statement.setLong(1, linkId);
+            statement.setLong(2, linkId1);
+            statement.execute();
+            System.out.println("Added link: " + url + " " + url1);
+            return true;
         } catch (SQLException e) {
-            System.out.println("Failed to get link ID for URL: " + url);
+            System.out.println("Failed to add link: " + url + " " + url1);
         }
-        return -1;
+        return true;
     }
-    long insertUrl(String url) {
-        System.out.println("Inserting URL: " + url);
-        String stmt = "INSERT INTO links (link) VALUES (?) RETURNING id;";
+    long getUrlId(String url) {
+        String stmt = """
+        INSERT INTO links (link)
+        VALUES (?)
+        ON CONFLICT (link) DO UPDATE
+        SET link = excluded.link
+        RETURNING id;
+        """;
         long id;
         try {
             PreparedStatement statement = connection.prepareStatement(stmt);
@@ -162,7 +177,6 @@ public class Database {
         }
         return id;
     }
-
     boolean indexedUrl(String url){
         System.out.println("Verifying if URL is indexed: " + url);
         String stmt = "SELECT indexed FROM links WHERE link = ? AND indexed = TRUE;";
@@ -181,5 +195,27 @@ public class Database {
             System.out.println("Failed to verify if URL is indexed: " + url);
         }
         return false;
+    }
+    long getWordId(String word) {
+        String stmt = """
+        INSERT INTO words (word)
+        VALUES (?)
+        ON CONFLICT (word) DO UPDATE
+        SET word = excluded.word
+        RETURNING id;
+        """;
+        long id;
+        try {
+            PreparedStatement statement = connection.prepareStatement(stmt);
+            statement.setString(1, word);
+            ResultSet res = statement.executeQuery();
+            res.next();
+            id = res.getLong("id");
+            System.out.println("Inserted word: " + word);
+        } catch (SQLException e) {
+            System.out.println("Failed to insert word: " + e.getMessage());
+            return -1;
+        }
+        return id;
     }
 }

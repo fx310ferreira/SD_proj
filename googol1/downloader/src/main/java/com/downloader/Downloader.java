@@ -9,6 +9,7 @@ import java.rmi.NotBoundException;
 import java.util.Arrays;
 
 import com.utils.Utils;
+import org.json.JSONObject;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -39,21 +40,22 @@ public class Downloader {
             Document doc = Jsoup.connect(url).get();
             String text = doc.text();
 
-            // Remove espaços, tabulações e quebras de linha
             text = text.replaceAll("\\p{Punct}", "").replaceAll("[^\\p{ASCII}]", "").toLowerCase();
             String[] words = text.split("\\s+");
-            System.out.println(Arrays.toString(words));
-//            for (String word : words) {
-//                // Remove pontuação, acentos e converte maiúsculas para minúsculas
-//                word = word.replaceAll("\\p{Punct}", "").replaceAll("[^\\p{ASCII}]", "").toLowerCase();
-//                if (!word.isEmpty()) {
-//
-//                }
-//            }
+            JSONObject content = new JSONObject();
+            content.put("url", url);
+            content.put("words", words);
+            content.put("type", "index");
+            multicastMsg(content);
 
             Elements elements = doc.select("a[href]");
             for (Element element : elements) {
                 String link = element.attr("abs:href");
+                content = new JSONObject();
+                content.put("url", url);
+                content.put("url1", link);
+                content.put("type", "link_link");
+                multicastMsg(content);
                 if(dispatcher.indexedUrl(url)){
                     System.out.println("Link already indexed: " + url);
                 } else {
@@ -69,9 +71,10 @@ public class Downloader {
         }
     }
 
-    void multicastMsg(String content) {
+    void multicastMsg(JSONObject content) {
         try {
-            byte[] buffer = content.getBytes();
+            String msg = content.toString();
+            byte[] buffer = msg.getBytes();
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length, this.mcastGroup, this.PORT);
             this.socket.send(packet);
         } catch (IOException e) {
@@ -89,7 +92,6 @@ public class Downloader {
                 String url = downloader.dispatcher.pop();
                 System.out.println("Downloader pooped url: " + url);
                 downloader.download(url);
-                downloader.multicastMsg(url);
                 downloader.dispatcher.finishedProcessing(url);
             }
         } catch (IOException | NotBoundException e) {
