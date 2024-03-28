@@ -19,20 +19,20 @@ public class GatewayBarrel extends UnicastRemoteObject implements GatewayBarrelI
     this.barrels = new HashMap<>();
   }
 
-  private BarrelInt getBarrel() throws RuntimeException {
-    if (barrel_ids.isEmpty())
-      throw new RuntimeException("No barrels available");
-    return barrels.get(barrel_ids.get(0));
-  }
-
   @Override
-  public boolean indexedUrl(String message) {
-    try {
-      return getBarrel().indexedUrl(message);
-    } catch (RemoteException e) {
-      // disconeotu do barrel
-      throw new RuntimeException(e);
-    }
+  public boolean indexedUrl(String message) throws RuntimeException {
+    do {
+      if (barrel_ids.isEmpty())
+        throw new RuntimeException("No barrels available");
+      try {
+        return barrels.get(barrel_ids.get(0)).indexedUrl(message);
+      } catch (RemoteException e) {
+        System.out.println("Barrel with ID " + barrel_ids.get(0) + " is dead.");
+        barrels.remove(barrel_ids.get(0));
+        barrel_ids.remove(0);
+      }
+    } while (!barrel_ids.isEmpty());
+    throw new RuntimeException("No barrels available");
   }
 
   @Override
@@ -42,7 +42,13 @@ public class GatewayBarrel extends UnicastRemoteObject implements GatewayBarrelI
       barrel_ids.add(barrelId);
       System.out.println("Barrel with ID " + barrelId + " subscribed.");
     } else {
-      System.out.println("Barrel with ID " + barrelId + " is already subscribed.");
+      try {
+        barrels.get(barrelId).alive();
+        System.out.println("Barrel with ID " + barrelId + " is already subscribed.");
+      } catch (RemoteException e) {
+        barrels.put(barrelId, barrel);
+        System.out.println("Barrel with ID " + barrelId + " resubscribed.");
+      }
     }
   }
 }

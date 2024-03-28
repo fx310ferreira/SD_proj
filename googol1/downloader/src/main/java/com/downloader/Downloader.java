@@ -35,7 +35,7 @@ public class Downloader {
         this.mcastGroup = InetAddress.getByName(this.MULTICAST_ADDRESS);
     }
 
-    void download(String url) {
+    void download(String url) throws  RuntimeException {
         try {
             Document doc = Jsoup.connect(url).get();
             String text = doc.text();
@@ -56,8 +56,8 @@ public class Downloader {
                 content.put("url1", link);
                 content.put("type", "link_link");
                 multicastMsg(content);
-                if(dispatcher.indexedUrl(url)){
-                    System.out.println("Link already indexed: " + url);
+                if(dispatcher.indexedUrl(link)){
+                    System.out.println("Link already indexed: " + link);
                 } else {
                     this.dispatcher.push(link);
                 }
@@ -68,6 +68,8 @@ public class Downloader {
             System.err.println("Downloader failed to download: " + e.getMessage());
         } catch (IllegalArgumentException e){
             System.out.println("Invalid link");
+        } catch (Exception e){
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -94,8 +96,8 @@ public class Downloader {
                 downloader.download(url);
                 downloader.dispatcher.finishedProcessing(url);
             }
-        } catch (IOException | NotBoundException e) {
-            System.err.println("Gateway is down please ty again later");
+        } catch (IOException | NotBoundException | RuntimeException e) {
+            System.err.println("Gateway is down please ty again later: " + e.getMessage());
         }
     }
 }

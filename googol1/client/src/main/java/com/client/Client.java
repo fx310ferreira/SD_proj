@@ -2,6 +2,7 @@ package com.client;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.Scanner;
 
@@ -68,8 +69,8 @@ public class Client {
             }
             scanner.close();
         }
-        catch (RemoteException | NotBoundException | MalformedURLException e) {
-            System.out.println("Gateway is down please try again later");
+        catch (RemoteException | NotBoundException | MalformedURLException | RuntimeException e) {
+            System.out.println("Gateway is down please try again later: " + e.getMessage());
         }
     }
 }

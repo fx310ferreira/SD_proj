@@ -27,6 +27,7 @@ public class Database {
             throw new SQLException("Invalid database name");
         this.DB_ID = db_id;
         this.connection = dbConnect();
+        connection.setAutoCommit(false);
     }
 
     Connection dbConnect() throws SQLException {
@@ -59,7 +60,7 @@ public class Database {
                 );
 
                 CREATE TABLE words_links (
-                    count    INTEGER,
+                    count    INTEGER NOT NULL DEFAULT 1,
                     links_id BIGINT,
                     words_id BIGINT,
                     PRIMARY KEY(links_id,words_id)
@@ -106,12 +107,16 @@ public class Database {
         return DriverManager.getConnection(this.DB_URL  + this.DB_ID, this.USER, this.PASSWORD);
     }
 
-    long indexUrl(String url, JSONArray words) {
-        //TODO: missing check if url is already indexed
+    long indexUrl(String url, JSONArray words) throws SQLException {
         System.out.println("Indexing URL: " + url);
+        if(indexedUrl(url)){
+            System.out.println("URL already indexed: " + url);
+            return -1;
+        }
         long linkId = getUrlId(url);
         if (linkId == -1) {
             System.out.println("Failed to index URL: " + url);
+            connection.rollback();
             return -1;
         }
 
@@ -119,17 +124,49 @@ public class Database {
             long wordId = getWordId(word.toString());
             if (wordId == -1) {
                 System.out.println("Failed to index word: " + word);
+                connection.rollback();
                 return -1;
             }
-//            if (!indexWordLink(wordId, linkId)) {
-//                System.out.println("Failed to index word link: " + word + " " + url);
-//                return -1;
-//            }
+            if (!indexWordLink(wordId, linkId)) {
+                System.out.println("Failed to index word link: " + word + " " + url);
+                connection.rollback();
+                return -1;
+            }
         }
+        String stmt = "UPDATE links SET indexed = TRUE WHERE id = ?";
+        try {
+            PreparedStatement statement = connection.prepareStatement(stmt);
+            statement.setLong(1, linkId);
+            statement.execute();
+        } catch (SQLException e) {
+            System.out.println("Failed to update link: " + url);
+            connection.rollback();
+            return -1;
+        }
+
+        connection.commit();
         return linkId;
     }
-
-    boolean addLink(String url, String url1){
+    boolean indexWordLink(long wordId, long linkId) {
+        String stmt = """
+                INSERT INTO words_links (links_id, words_id)
+                VALUES (?, ?)
+                ON CONFLICT (links_id, words_id) DO UPDATE
+                SET count = words_links.count + 1
+                """;
+        try {
+            PreparedStatement statement = connection.prepareStatement(stmt);
+            statement.setLong(1, linkId);
+            statement.setLong(2, wordId);
+            statement.execute();
+            System.out.println("Indexed word link: " + wordId + " " + linkId);
+            return true;
+        } catch (SQLException e) {
+            System.out.println("Failed to index word link: " + wordId + " " + linkId);
+        }
+        return false;
+    }
+    boolean addLink(String url, String url1) throws SQLException {
         System.out.println("Adding link: " + url + " " + url1);
         long linkId = getUrlId(url);
         long linkId1 = getUrlId(url1);
@@ -149,9 +186,11 @@ public class Database {
             statement.setLong(2, linkId1);
             statement.execute();
             System.out.println("Added link: " + url + " " + url1);
+            connection.commit();
             return true;
         } catch (SQLException e) {
             System.out.println("Failed to add link: " + url + " " + url1);
+            connection.rollback();
         }
         return true;
     }
@@ -170,7 +209,6 @@ public class Database {
             ResultSet res = statement.executeQuery();
             res.next();
             id = res.getLong("id");
-            System.out.println("Inserted URL: " + url);
         } catch (SQLException e) {
             System.out.println("Failed to insert URL: " + e.getMessage());
             return -1;
@@ -178,7 +216,6 @@ public class Database {
         return id;
     }
     boolean indexedUrl(String url){
-        System.out.println("Verifying if URL is indexed: " + url);
         String stmt = "SELECT indexed FROM links WHERE link = ? AND indexed = TRUE;";
         try {
             PreparedStatement statement = connection.prepareStatement(stmt);

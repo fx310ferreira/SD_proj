@@ -44,6 +44,9 @@ public class Barrel extends UnicastRemoteObject implements BarrelInt {
         return database.indexedUrl(url);
     }
 
+    @Override
+    public void alive() throws RemoteException {}
+
     private JSONObject receiveMltcMsg() {
         byte[] buffer = new byte[10240];
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
@@ -63,7 +66,6 @@ public class Barrel extends UnicastRemoteObject implements BarrelInt {
 
         try {
             barrel = new Barrel();
-            barrel.database = new Database(barrel.BARREL_ID);
             barrel.socket.joinGroup(new InetSocketAddress(barrel.mcastAddr, 0), NetworkInterface.getByIndex(0));
         } catch (RemoteException e) {
             System.err.println("Error connecting to rmi: " + e.getMessage());
