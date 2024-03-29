@@ -4,6 +4,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
 import com.common.GatewayInt;
+import com.common.Site;
 import com.utils.Utils;
 
 public class Gateway extends UnicastRemoteObject implements GatewayInt {
@@ -32,9 +33,9 @@ public class Gateway extends UnicastRemoteObject implements GatewayInt {
     }
 
     @Override
-    public void search(String query) throws RemoteException {
+    public Site search(String query) throws RemoteException {
         System.out.println("Searching for " + query);
-//        gatewayBarrel.message(query);
+        return gatewayBarrel.search(query.split(" "));
     }
 
     public static void main(String[] args) {

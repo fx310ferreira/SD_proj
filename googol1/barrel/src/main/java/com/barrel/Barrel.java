@@ -3,6 +3,7 @@ package com.barrel;
 import com.common.BarrelInt;
 import com.common.GatewayBarrelInt;
 import com.common.GatewayInt;
+import com.common.Site;
 import com.utils.Utils;
 import org.json.JSONObject;
 
@@ -45,20 +46,31 @@ public class Barrel extends UnicastRemoteObject implements BarrelInt {
     }
 
     @Override
+    public Site search(String[] words) throws RemoteException {
+        return database.search(words);
+    }
+
+    @Override
     public void alive() throws RemoteException {}
 
+    // Receive a message infinetly big
     private JSONObject receiveMltcMsg() {
-        byte[] buffer = new byte[10240];
-        DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
         try {
+            byte[] buffer = new byte[65536];
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
             socket.receive(packet);
-            // Create a string from the received data and parse it as a JSONObject
-            String message = new String(buffer, 0, packet.getLength());
+            byte[] data = packet.getData();
+            ByteArrayInputStream in = new ByteArrayInputStream(data);
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            int read;
+            while ((read = in.read()) != 0) {
+                out.write(read);
+            }
+            return new JSONObject(new String(out.toByteArray()));
         } catch (IOException e) {
             e.printStackTrace();
         }
-        String message = new String(buffer, 0, packet.getLength());
-        return new JSONObject(message);
+        return null;
     }
 
     public static void main(String[] args){
@@ -85,7 +97,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInt {
             while(true){
                 JSONObject message = barrel.receiveMltcMsg();
                 if(message.getString("type").equals("index"))
-                    barrel.database.indexUrl(message.getString("url"), message.getJSONArray("words"));
+                    barrel.database.indexUrl(message.getString("url"), message.getJSONArray("words"), message.getString("title"));
                 else if(message.getString("type").equals("link_link")){
                     barrel.database.addLink(message.getString("url"), message.getString("url1"));
                 }

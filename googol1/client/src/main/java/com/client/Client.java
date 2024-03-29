@@ -47,7 +47,7 @@ public class Client {
                     case "1":
                         System.out.print("Enter the search query: ");
                         message = scanner.nextLine().strip();
-                        server.search(message);
+                        System.out.println(server.search(message));
                         break;
                     case "2":
                         System.out.print("Enter the URL: ");

@@ -1,5 +1,6 @@
 package com.barrel;
 
+import com.common.Site;
 import com.utils.Utils;
 import org.json.JSONArray;
 
@@ -54,6 +55,7 @@ public class Database {
                 CREATE TABLE links (
                     id   BIGSERIAL,
                     link     VARCHAR(512) NOT NULL,
+                    title    VARCHAR(512),
                     searches BIGINT NOT NULL DEFAULT 0,
                     indexed  BOOLEAN NOT NULL DEFAULT FALSE,
                     PRIMARY KEY(id)
@@ -107,7 +109,7 @@ public class Database {
         return DriverManager.getConnection(this.DB_URL  + this.DB_ID, this.USER, this.PASSWORD);
     }
 
-    long indexUrl(String url, JSONArray words) throws SQLException {
+    long indexUrl(String url, JSONArray words, String title) throws SQLException {
         System.out.println("Indexing URL: " + url);
         if(indexedUrl(url)){
             System.out.println("URL already indexed: " + url);
@@ -133,10 +135,11 @@ public class Database {
                 return -1;
             }
         }
-        String stmt = "UPDATE links SET indexed = TRUE WHERE id = ?";
+        String stmt = "UPDATE links SET indexed = TRUE, title = ? WHERE id = ?";
         try {
             PreparedStatement statement = connection.prepareStatement(stmt);
-            statement.setLong(1, linkId);
+            statement.setString(1, title);
+            statement.setLong(2, linkId);
             statement.execute();
         } catch (SQLException e) {
             System.out.println("Failed to update link: " + url);
@@ -254,5 +257,30 @@ public class Database {
             return -1;
         }
         return id;
+    }
+
+
+    Site search(String[] words) {
+        ArrayList<Site> sites = new ArrayList<>();
+        String stmt = """
+                SELECT l.link, l.title, count(*)
+                FROM words_links as wl, links as l, words as w
+                WHERE wl.words_id  = w.id AND wl.links_id  = l.id AND w.word IN (?)
+                GROUP BY l.link, l.title;
+                """;
+        try {
+            PreparedStatement statement = connection.prepareStatement(stmt);
+            statement.setArray(1, words);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                sites.add(new Site(resultSet.getString("link"), resultSet.getString("title")));
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to search for words: " + e.getMessage());
+            return null;
+
+        }
+        System.out.println("Found " + sites+ " sites");
+        return sites.get(0);
     }
 }

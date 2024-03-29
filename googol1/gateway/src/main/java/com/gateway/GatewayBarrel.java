@@ -2,6 +2,7 @@ package com.gateway;
 
 import com.common.BarrelInt;
 import com.common.GatewayBarrelInt;
+import com.common.Site;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -28,6 +29,21 @@ public class GatewayBarrel extends UnicastRemoteObject implements GatewayBarrelI
         return barrels.get(barrel_ids.get(0)).indexedUrl(message);
       } catch (RemoteException e) {
         System.out.println("Barrel with ID " + barrel_ids.get(0) + " is dead.");
+        barrels.remove(barrel_ids.get(0));
+        barrel_ids.remove(0);
+      }
+    } while (!barrel_ids.isEmpty());
+    throw new RuntimeException("No barrels available");
+  }
+
+  public Site search(String[] words) throws RemoteException {
+    do {
+      if (barrel_ids.isEmpty())
+        throw new RuntimeException("No barrels available");
+      try {
+        return barrels.get(barrel_ids.get(0)).search(words);
+      } catch (RemoteException e) {
+        System.out.println("Barrel with ID " + barrel_ids.get(0) + " is dead: " + e.getMessage());
         barrels.remove(barrel_ids.get(0));
         barrel_ids.remove(0);
       }

@@ -6,7 +6,6 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
-import java.util.Arrays;
 
 import com.utils.Utils;
 import org.json.JSONObject;
@@ -45,6 +44,7 @@ public class Downloader {
             JSONObject content = new JSONObject();
             content.put("url", url);
             content.put("words", words);
+            content.put("title", doc.title());
             content.put("type", "index");
             multicastMsg(content);
 
