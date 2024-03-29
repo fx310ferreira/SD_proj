@@ -50,7 +50,7 @@ public class GatewayBarrel extends UnicastRemoteObject implements GatewayBarrelI
     throw new RuntimeException("No active barrels available");
   }
 
-  public Site search(String[] words) throws RemoteException {
+  public Site[] search(String[] words) throws RemoteException {
     if (barrelIds.isEmpty()) {
       throw new RuntimeException("No barrels available");
     }
@@ -86,22 +86,11 @@ public class GatewayBarrel extends UnicastRemoteObject implements GatewayBarrelI
     } else {
       // Se o barril já estiver inscrito, verifica se está ativo
       try {
-        if (barrel.alive()) {
-          System.out.println("Barrel with ID " + barrelId + " is already subscribed.");
-        } else {
-          // Se o barril estiver inativo, este é removido e inscreve-se o novo barril
-          barrels.remove(barrelId);
-          barrelIds.remove(barrelId);
-          barrels.put(barrelId, barrel);
-          barrelIds.add(barrelId);
-          System.out.println("Barrel with ID " + barrelId + " resubscribed.");
-        }
+        barrels.get(barrelId).alive();
+        System.out.println("Barrel with ID " + barrelId + " is already subscribed.");
       } catch (RemoteException e) {
         // Se ocorrer uma exceção ao verificar a atividade do barril, assume-se que o barril está inativo
-        barrels.remove(barrelId);
-        barrelIds.remove(barrelId);
         barrels.put(barrelId, barrel);
-        barrelIds.add(barrelId);
         System.out.println("Barrel with ID " + barrelId + " resubscribed.");
       }
     }

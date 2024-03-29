@@ -2,7 +2,6 @@ package com.barrel;
 
 import com.common.BarrelInt;
 import com.common.GatewayBarrelInt;
-import com.common.GatewayInt;
 import com.common.Site;
 import com.utils.Utils;
 import org.json.JSONObject;
@@ -46,17 +45,20 @@ public class Barrel extends UnicastRemoteObject implements BarrelInt {
     }
 
     @Override
-    public Site search(String[] words) throws RemoteException {
+    public Site[] search(String[] words) throws RemoteException {
+        if(words.length == 0){
+            return new Site[0];
+        }
+        if(words.length == 1 && (words[0].startsWith("http://") || words[0].startsWith("https://"))){
+            return new Site[]{database.searchUrl(words[0])};
+        }
         return database.search(words);
     }
 
     @Override
-    public boolean alive() throws RemoteException {
-        return true;
-    }
+    public void alive() throws RemoteException {}
 
 
-    // Receive a message infinetly big
     private JSONObject receiveMltcMsg() {
         try {
             byte[] buffer = new byte[65536];

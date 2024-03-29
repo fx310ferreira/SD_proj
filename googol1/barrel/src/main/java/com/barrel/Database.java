@@ -4,6 +4,7 @@ import com.common.Site;
 import com.utils.Utils;
 import org.json.JSONArray;
 
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -225,13 +226,7 @@ public class Database {
             PreparedStatement statement = connection.prepareStatement(stmt);
             statement.setString(1, url);
             ResultSet resultSet = statement.executeQuery();
-            if (resultSet.next()) {
-                System.out.println("URL is indexed: " + url);
-                return true;
-            } else {
-                System.out.println("URL is not indexed: " + url);
-                return false;
-            }
+            return resultSet.next();
         } catch (SQLException e) {
             System.out.println("Failed to verify if URL is indexed: " + url);
         }
@@ -259,24 +254,29 @@ public class Database {
         }
         return id;
     }
-
-
-    Site search(String[] words) {
+    Site[] search(String[] words) {
         Set<String> wordsSet = Set.of(words);
         ArrayList<Site> sites = new ArrayList<>();
         String stmt = """
                 SELECT l.link, l.title, l.searches, count(*), sum(count) as occurrences
                 FROM words_links as wl, links as l, words as w
-                WHERE wl.words_id  = w.id AND wl.links_id  = l.id AND w.word IN ?
-                group by l.link, l.title, l.searches
-                order by l.searches;
+                WHERE wl.words_id  = w.id AND wl.links_id  = l.id AND w.word IN (?"""
+                + ",?".repeat(wordsSet.size() - 1) +
+                """
+                )
+                GROUP BY l.link, l.title, l.searches
+                ORDER BY l.searches;
                 """;
         try {
             PreparedStatement statement = connection.prepareStatement(stmt);
-            statement.setArray(1, connection.createArrayOf("VARCHAR", words));
+            int i = 1;
+            for (String word : wordsSet) {
+                statement.setString(i++, word.toLowerCase());
+            }
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
-                sites.add(new Site(resultSet.getString("link"), resultSet.getString("title")));
+                if (resultSet.getInt("count") == wordsSet.size())
+                    sites.add(new Site(resultSet.getLong("id"), resultSet.getString("link"), resultSet.getString("title"), resultSet.getInt("occurrences")));
             }
         } catch (SQLException e) {
             System.out.println("Failed to search for words: " + e.getMessage());
@@ -284,6 +284,24 @@ public class Database {
 
         }
         System.out.println("Found " + sites+ " sites");
-        return sites.get(0);
+        Site[] sitesArray = new Site[sites.size()];
+        return sites.toArray(sitesArray);
+    }
+    Site searchUrl(String url){
+        String stmt = """
+                SELECT id, link, title FROM links WHERE link = ? AND indexed = TRUE;
+                """;
+        try {
+            PreparedStatement statement = connection.prepareStatement(stmt);
+            statement.setString(1, url);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return new Site(resultSet.getLong("id"), resultSet.getString("link"), resultSet.getString("title"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to search for URL: " + e.getMessage());
+            return null;
+        }
+        return null;
     }
 }

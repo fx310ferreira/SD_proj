@@ -33,7 +33,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInt {
     }
 
     @Override
-    public Site search(String query) throws RemoteException {
+    public Site[] search(String query) throws RemoteException {
         System.out.println("Searching for " + query);
         return gatewayBarrel.search(query.split(" "));
     }

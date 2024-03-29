@@ -7,6 +7,7 @@ import java.rmi.RemoteException;
 import java.util.Scanner;
 
 import com.common.GatewayInt;
+import com.common.Site;
 import com.utils.Utils;
 
 
@@ -47,7 +48,17 @@ public class Client {
                     case "1":
                         System.out.print("Enter the search query: ");
                         message = scanner.nextLine().strip();
-                        System.out.println(server.search(message));
+                        if (message.isBlank()) {
+                            System.out.println("Invalid search query");
+                            break;
+                        }
+                        Site[] sites = server.search(message);
+                        if (sites.length == 0) {
+                            System.out.println("No results found");
+                        }
+                        for (var site : sites) {
+                            System.out.println(site);
+                        }
                         break;
                     case "2":
                         System.out.print("Enter the URL: ");
