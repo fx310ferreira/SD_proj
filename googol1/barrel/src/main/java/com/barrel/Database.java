@@ -10,6 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Set;
 
 public class Database {
 
@@ -261,16 +262,18 @@ public class Database {
 
 
     Site search(String[] words) {
+        Set<String> wordsSet = Set.of(words);
         ArrayList<Site> sites = new ArrayList<>();
         String stmt = """
-                SELECT l.link, l.title, count(*)
+                SELECT l.link, l.title, l.searches, count(*), sum(count) as occurrences
                 FROM words_links as wl, links as l, words as w
-                WHERE wl.words_id  = w.id AND wl.links_id  = l.id AND w.word IN (?)
-                GROUP BY l.link, l.title;
+                WHERE wl.words_id  = w.id AND wl.links_id  = l.id AND w.word IN ?
+                group by l.link, l.title, l.searches
+                order by l.searches;
                 """;
         try {
             PreparedStatement statement = connection.prepareStatement(stmt);
-            statement.setArray(1, words);
+            statement.setArray(1, connection.createArrayOf("VARCHAR", words));
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 sites.add(new Site(resultSet.getString("link"), resultSet.getString("title")));

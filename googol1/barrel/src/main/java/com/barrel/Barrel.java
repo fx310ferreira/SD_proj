@@ -46,18 +46,15 @@ public class Barrel extends UnicastRemoteObject implements BarrelInt {
     }
 
     @Override
-<<<<<<< HEAD
     public Site search(String[] words) throws RemoteException {
         return database.search(words);
     }
 
     @Override
-    public void alive() throws RemoteException {}
-=======
     public boolean alive() throws RemoteException {
         return true;
     }
->>>>>>> d1a25c501222ec57c34bca3ceaf1adc2fd7fa873
+
 
     // Receive a message infinetly big
     private JSONObject receiveMltcMsg() {

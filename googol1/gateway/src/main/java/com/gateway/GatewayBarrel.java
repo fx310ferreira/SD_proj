@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 public class GatewayBarrel extends UnicastRemoteObject implements GatewayBarrelInt {
-  private List<String> barrelIds;
-  private Map<String, BarrelInt> barrels;
+  private final List<String> barrelIds;
+  private final Map<String, BarrelInt> barrels;
   private int currentBarrelIndex;
 
   public GatewayBarrel() throws RemoteException {
@@ -29,45 +29,51 @@ public class GatewayBarrel extends UnicastRemoteObject implements GatewayBarrelI
       throw new RuntimeException("No barrels available");
     }
 
-    int numAttempts = 0;
     int numBarrels = barrelIds.size();
 
-    while (numAttempts < numBarrels) {
+    while (!barrelIds.isEmpty()) {
       String currentBarrelId = barrelIds.get(currentBarrelIndex);
       BarrelInt currentBarrel = barrels.get(currentBarrelId);
 
       try {
-        if (currentBarrel.alive()) {
-          return currentBarrel.indexedUrl(message);
-        } else {
-          barrels.remove(currentBarrelId);
-          barrelIds.remove(currentBarrelId);
-        }
+        currentBarrelIndex = (currentBarrelIndex + 1) % numBarrels;
+        return currentBarrel.indexedUrl(message);
       } catch (RemoteException e) {
           barrels.remove(currentBarrelId);
           barrelIds.remove(currentBarrelId);
+          numBarrels--;
+          if(currentBarrelIndex >= numBarrels) {
+            currentBarrelIndex = 0;
+          }
       }
-
-      currentBarrelIndex = (currentBarrelIndex + 1) % numBarrels;
-      numAttempts++;
     }
-
     throw new RuntimeException("No active barrels available");
   }
 
   public Site search(String[] words) throws RemoteException {
-    do {
-      if (barrel_ids.isEmpty())
-        throw new RuntimeException("No barrels available");
+    if (barrelIds.isEmpty()) {
+      throw new RuntimeException("No barrels available");
+    }
+
+    int numBarrels = barrelIds.size();
+
+    while (!barrelIds.isEmpty()) {
+      String currentBarrelId = barrelIds.get(currentBarrelIndex);
+      BarrelInt currentBarrel = barrels.get(currentBarrelId);
+
       try {
-        return barrels.get(barrel_ids.get(0)).search(words);
+        currentBarrelIndex = (currentBarrelIndex + 1) % numBarrels;
+        return currentBarrel.search(words);
       } catch (RemoteException e) {
-        System.out.println("Barrel with ID " + barrel_ids.get(0) + " is dead: " + e.getMessage());
-        barrels.remove(barrel_ids.get(0));
-        barrel_ids.remove(0);
+        barrels.remove(currentBarrelId);
+        barrelIds.remove(currentBarrelId);
+        numBarrels--;
+        if(currentBarrelIndex >= numBarrels) {
+          currentBarrelIndex = 0;
+        }
       }
-    } while (!barrel_ids.isEmpty());
-    throw new RuntimeException("No barrels available");
+    }
+    throw new RuntimeException("No active barrels available");
   }
 
   @Override
