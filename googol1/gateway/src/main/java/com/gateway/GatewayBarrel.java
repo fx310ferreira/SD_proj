@@ -7,46 +7,79 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class GatewayBarrel extends UnicastRemoteObject implements GatewayBarrelInt {
-  ArrayList<String> barrel_ids;
-  Map<String, BarrelInt> barrels;
+  private List<String> barrelIds;
+  private Map<String, BarrelInt> barrels;
+  private int currentBarrelIndex;
 
-  GatewayBarrel() throws RemoteException {
+  public GatewayBarrel() throws RemoteException {
     super();
-    this.barrel_ids = new ArrayList<>();
+    this.barrelIds = new ArrayList<>();
     this.barrels = new HashMap<>();
+    this.currentBarrelIndex = 0;
   }
 
   @Override
-  public boolean indexedUrl(String message) throws RuntimeException {
-    do {
-      if (barrel_ids.isEmpty())
-        throw new RuntimeException("No barrels available");
+  public boolean indexedUrl(String message) throws RemoteException {
+    if (barrelIds.isEmpty()) {
+      throw new RuntimeException("No barrels available");
+    }
+
+    int numAttempts = 0;
+    int numBarrels = barrelIds.size();
+
+    while (numAttempts < numBarrels) {
+      String currentBarrelId = barrelIds.get(currentBarrelIndex);
+      BarrelInt currentBarrel = barrels.get(currentBarrelId);
+
       try {
-        return barrels.get(barrel_ids.get(0)).indexedUrl(message);
+        if (currentBarrel.alive()) {
+          return currentBarrel.indexedUrl(message);
+        } else {
+          barrels.remove(currentBarrelId);
+          barrelIds.remove(currentBarrelId);
+        }
       } catch (RemoteException e) {
-        System.out.println("Barrel with ID " + barrel_ids.get(0) + " is dead.");
-        barrels.remove(barrel_ids.get(0));
-        barrel_ids.remove(0);
+          barrels.remove(currentBarrelId);
+          barrelIds.remove(currentBarrelId);
       }
-    } while (!barrel_ids.isEmpty());
-    throw new RuntimeException("No barrels available");
+
+      currentBarrelIndex = (currentBarrelIndex + 1) % numBarrels;
+      numAttempts++;
+    }
+
+    throw new RuntimeException("No active barrels available");
   }
 
   @Override
   public synchronized void subscribe(BarrelInt barrel, String barrelId) throws RemoteException {
+    // Verifica se o barril já está inscrito
     if (!barrels.containsKey(barrelId)) {
       barrels.put(barrelId, barrel);
-      barrel_ids.add(barrelId);
+      barrelIds.add(barrelId);
       System.out.println("Barrel with ID " + barrelId + " subscribed.");
     } else {
+      // Se o barril já estiver inscrito, verifica se está ativo
       try {
-        barrels.get(barrelId).alive();
-        System.out.println("Barrel with ID " + barrelId + " is already subscribed.");
+        if (barrel.alive()) {
+          System.out.println("Barrel with ID " + barrelId + " is already subscribed.");
+        } else {
+          // Se o barril estiver inativo, este é removido e inscreve-se o novo barril
+          barrels.remove(barrelId);
+          barrelIds.remove(barrelId);
+          barrels.put(barrelId, barrel);
+          barrelIds.add(barrelId);
+          System.out.println("Barrel with ID " + barrelId + " resubscribed.");
+        }
       } catch (RemoteException e) {
+        // Se ocorrer uma exceção ao verificar a atividade do barril, assume-se que o barril está inativo
+        barrels.remove(barrelId);
+        barrelIds.remove(barrelId);
         barrels.put(barrelId, barrel);
+        barrelIds.add(barrelId);
         System.out.println("Barrel with ID " + barrelId + " resubscribed.");
       }
     }

@@ -45,7 +45,9 @@ public class Barrel extends UnicastRemoteObject implements BarrelInt {
     }
 
     @Override
-    public void alive() throws RemoteException {}
+    public boolean alive() throws RemoteException {
+        return true;
+    }
 
     private JSONObject receiveMltcMsg() {
         byte[] buffer = new byte[10240];
