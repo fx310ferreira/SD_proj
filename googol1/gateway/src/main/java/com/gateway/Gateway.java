@@ -7,6 +7,10 @@ import com.common.GatewayInt;
 import com.common.Site;
 import com.utils.Utils;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 public class Gateway extends UnicastRemoteObject implements GatewayInt {
 
     GatewayBarrel gatewayBarrel;
@@ -41,6 +45,16 @@ public class Gateway extends UnicastRemoteObject implements GatewayInt {
     @Override
     public Site[] linkedPages(String url) throws RemoteException {
         return gatewayBarrel.linkedPages(url);
+    }
+
+    @Override
+    public Set<String> getBarrelIds() throws RemoteException {
+        return gatewayBarrel.getBarrelIds();
+    }
+
+    @Override
+    public Map<String, List<Double>> getResponseTimes() throws RemoteException {
+        return gatewayBarrel.getResponseTimes();
     }
 
     public static void main(String[] args) {

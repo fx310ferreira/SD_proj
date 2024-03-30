@@ -6,10 +6,13 @@ import com.common.Site;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
-import java.util.HashMap;
+
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
 
 public class GatewayBarrel extends UnicastRemoteObject implements GatewayBarrelInt {
   private final List<String> barrelIds;
@@ -132,5 +135,13 @@ public class GatewayBarrel extends UnicastRemoteObject implements GatewayBarrelI
         System.out.println("Barrel with ID " + barrelId + " resubscribed.");
       }
     }
+  }
+
+  public Set<String> getBarrelIds() throws RemoteException {
+    return new HashSet<>(barrelIds);
+  }
+
+  public Map<String, List<Double>> getResponseTimes() throws RemoteException {
+    return new HashMap<>(responseTimes);
   }
 }
