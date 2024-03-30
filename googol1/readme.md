@@ -15,8 +15,9 @@
  - [x] On dispatcher push don't add if the link does not start
  - [x] Dispatcher processed queue behaviour
  - [x] Think in a way for us not to have inactive barrels inside the array list
- - [ ] Search words: missing validation if matches all the terms, order
+ - [ ] Search words: order
  - [ ] Barrel metrics
  - [ ] Add rollback and commits on every database operation
  - [ ] Correct ascii
- - [ ] Search urls
+ - [x] Search urls
+ - [ ] Wierd thing happening with / in the end of the url se what is happening

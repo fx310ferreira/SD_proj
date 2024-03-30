@@ -45,14 +45,19 @@ public class Barrel extends UnicastRemoteObject implements BarrelInt {
     }
 
     @Override
-    public Site[] search(String[] words) throws RemoteException {
+    public Site[] search(String[] words, int page) throws RemoteException {
         if(words.length == 0){
             return new Site[0];
         }
         if(words.length == 1 && (words[0].startsWith("http://") || words[0].startsWith("https://"))){
             return new Site[]{database.searchUrl(words[0])};
         }
-        return database.search(words);
+        return database.search(words, page);
+    }
+
+    @Override
+    public Site[] linkedPages(String url) throws RemoteException {
+        return database.linkedPages(url);
     }
 
     @Override
@@ -99,12 +104,16 @@ public class Barrel extends UnicastRemoteObject implements BarrelInt {
             GatewayBarrelInt server = (GatewayBarrelInt) Naming.lookup("rmi://" + barrel.RMI_ADDRESS +"/barrels");
             server.subscribe(barrel, barrel.BARREL_ID);
             System.out.println("Barrel is ready");
+            int i = 0;
             while(true){
                 JSONObject message = barrel.receiveMltcMsg();
                 if(message.getString("type").equals("index"))
                     barrel.database.indexUrl(message.getString("url"), message.getJSONArray("words"), message.getString("title"));
                 else if(message.getString("type").equals("link_link")){
                     barrel.database.addLink(message.getString("url"), message.getString("url1"));
+                } else if (message.getString("type").equals("test")){
+                    System.out.println("Test message received: " + i++);
+                    Thread.sleep(100);
                 }
             }
         } catch (IOException e) {

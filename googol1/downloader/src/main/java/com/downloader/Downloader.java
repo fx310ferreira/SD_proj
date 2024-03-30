@@ -90,6 +90,9 @@ public class Downloader {
 
             System.out.println("Downloader is ready");
             while (true) {
+                for (int i = 0; i < 100; i++) {
+                    downloader.multicastMsg(new JSONObject().put("type", "test"));
+                }
                 System.out.println("Downloader is waiting for a URL to download...");
                 String url = downloader.dispatcher.pop();
                 System.out.println("Downloader pooped url: " + url);

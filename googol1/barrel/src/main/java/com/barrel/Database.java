@@ -254,19 +254,22 @@ public class Database {
         }
         return id;
     }
-    Site[] search(String[] words) {
+    Site[] search(String[] words, int page) {
         Set<String> wordsSet = Set.of(words);
         ArrayList<Site> sites = new ArrayList<>();
         String stmt = """
-                SELECT l.link, l.title, l.searches, count(*), sum(count) as occurrences
-                FROM words_links as wl, links as l, words as w
-                WHERE wl.words_id  = w.id AND wl.links_id  = l.id AND w.word IN (?"""
+                SELECT l.link, l.title, l.searches, count(distinct W.id), coalesce(sum(ll.count), 0) as occurrences
+                FROM words_links as wl
+                    JOIN links as l ON wl.links_id = l.id
+                    JOIN words as w ON wl.words_id = w.id
+                    LEFT JOIN links_links as ll ON l.id = ll.links_id1\s
+                WHERE w.word IN (?"""
                 + ",?".repeat(wordsSet.size() - 1) +
                 """
                 )
                 GROUP BY l.link, l.title, l.searches
-                ORDER BY l.searches;
-                """;
+                ORDER BY occurrences desc
+                LIMIT 10 OFFSET\s""" + page*10 + ";";
         try {
             PreparedStatement statement = connection.prepareStatement(stmt);
             int i = 1;
@@ -276,7 +279,7 @@ public class Database {
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 if (resultSet.getInt("count") == wordsSet.size())
-                    sites.add(new Site(resultSet.getLong("id"), resultSet.getString("link"), resultSet.getString("title"), resultSet.getInt("occurrences")));
+                    sites.add(new Site(resultSet.getString("link"), resultSet.getString("title"), resultSet.getInt("occurrences")));
             }
         } catch (SQLException e) {
             System.out.println("Failed to search for words: " + e.getMessage());
@@ -289,19 +292,43 @@ public class Database {
     }
     Site searchUrl(String url){
         String stmt = """
-                SELECT id, link, title FROM links WHERE link = ? AND indexed = TRUE;
+                SELECT link, title FROM links WHERE link = ? AND indexed = TRUE;
                 """;
         try {
             PreparedStatement statement = connection.prepareStatement(stmt);
             statement.setString(1, url);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
-                return new Site(resultSet.getLong("id"), resultSet.getString("link"), resultSet.getString("title"));
+                return new Site(resultSet.getString("link"), resultSet.getString("title"));
             }
         } catch (SQLException e) {
             System.out.println("Failed to search for URL: " + e.getMessage());
             return null;
         }
         return null;
+    }
+
+    Site[] linkedPages(String url){
+        String stmt = """
+                select l.link, l.title, sum(ll.count)  as occurrences
+                FROM links_links as ll
+                    JOIN links as l ON ll.links_id1 = l.id
+                WHERE l.link = ?
+                group by l.id , l.title
+                """;
+        ArrayList<Site> sites = new ArrayList<>();
+        try {
+            PreparedStatement statement = connection.prepareStatement(stmt);
+            statement.setString(1, url);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                sites.add(new Site(resultSet.getString("link"), resultSet.getString("title")));
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to search for linked pages: " + e.getMessage());
+            return null;
+        }
+        Site[] sitesArray = new Site[sites.size()];
+        return sites.toArray(sitesArray);
     }
 }

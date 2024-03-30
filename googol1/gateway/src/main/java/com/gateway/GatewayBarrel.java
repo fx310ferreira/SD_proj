@@ -50,7 +50,7 @@ public class GatewayBarrel extends UnicastRemoteObject implements GatewayBarrelI
     throw new RuntimeException("No active barrels available");
   }
 
-  public Site[] search(String[] words) throws RemoteException {
+  public Site[] search(String[] words, int page) throws RemoteException {
     if (barrelIds.isEmpty()) {
       throw new RuntimeException("No barrels available");
     }
@@ -63,7 +63,33 @@ public class GatewayBarrel extends UnicastRemoteObject implements GatewayBarrelI
 
       try {
         currentBarrelIndex = (currentBarrelIndex + 1) % numBarrels;
-        return currentBarrel.search(words);
+        return currentBarrel.search(words, page);
+      } catch (RemoteException e) {
+        barrels.remove(currentBarrelId);
+        barrelIds.remove(currentBarrelId);
+        numBarrels--;
+        if(currentBarrelIndex >= numBarrels) {
+          currentBarrelIndex = 0;
+        }
+      }
+    }
+    throw new RuntimeException("No active barrels available");
+  }
+
+  public Site[] linkedPages(String url) throws RemoteException {
+    if (barrelIds.isEmpty()) {
+      throw new RuntimeException("No barrels available");
+    }
+
+    int numBarrels = barrelIds.size();
+
+    while (!barrelIds.isEmpty()) {
+      String currentBarrelId = barrelIds.get(currentBarrelIndex);
+      BarrelInt currentBarrel = barrels.get(currentBarrelId);
+
+      try {
+        currentBarrelIndex = (currentBarrelIndex + 1) % numBarrels;
+        return currentBarrel.linkedPages(url);
       } catch (RemoteException e) {
         barrels.remove(currentBarrelId);
         barrelIds.remove(currentBarrelId);

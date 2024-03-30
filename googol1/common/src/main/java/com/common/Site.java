@@ -3,21 +3,18 @@ package com.common;
 import java.io.Serializable;
 
 public class Site implements Serializable {
-    long id;
     String url;
     String title;
     int occurrences;
     String[] pagesThatContain;
 
-    public Site(long id, String url, String title) {
-        this.id = id;
+    public Site(String url, String title) {
         this.url = url;
         this.title = title;
         this.occurrences = 0;
     }
 
-    public Site(long id, String url, String title, int occurrences) {
-        this.id = id;
+    public Site(String url, String title, int occurrences) {
         this.url = url;
         this.title = title;
         this.occurrences = occurrences;
@@ -31,12 +28,17 @@ public class Site implements Serializable {
         return result.toString();
     }
 
+    public String getLink(){
+        return url;
+
+    }
+
     @Override
     public String toString() {
         return "Site{" +
                 "url='" + url + '\'' +
                 ", title='" + title + '\'' +
-                ", occurrences=" + occurrences +
+                ", referencedBy=" + occurrences +
                 '}';
     }
 }
