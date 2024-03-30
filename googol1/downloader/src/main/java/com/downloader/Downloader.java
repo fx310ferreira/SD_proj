@@ -1,5 +1,6 @@
 package com.downloader;
 
+import java.text.Normalizer;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -34,13 +35,17 @@ public class Downloader {
         this.mcastGroup = InetAddress.getByName(this.MULTICAST_ADDRESS);
     }
 
-    void download(String url) throws  RuntimeException {
+    void download(String url) throws RuntimeException {
         try {
             Document doc = Jsoup.connect(url).get();
             String text = doc.text();
 
-            text = text.replaceAll("\\p{Punct}", "").replaceAll("[^\\p{ASCII}]", "").toLowerCase();
-            String[] words = text.split("\\s+");
+            String[] words = Normalizer.normalize(text, Normalizer.Form.NFD)
+                    .replaceAll("[^\\p{ASCII}]", "")
+                    .replaceAll("\\p{Punct}", "")
+                    .toLowerCase()
+                    .split("\\s+");
+
             JSONObject content = new JSONObject();
             content.put("url", url);
             content.put("words", words);
@@ -56,7 +61,7 @@ public class Downloader {
                 content.put("url1", link);
                 content.put("type", "link_link");
                 multicastMsg(content);
-                if(dispatcher.indexedUrl(link)){
+                if (dispatcher.indexedUrl(link)) {
                     System.out.println("Link already indexed: " + link);
                 } else {
                     this.dispatcher.push(link);
@@ -66,9 +71,9 @@ public class Downloader {
             System.err.println("Downloader failed to download: " + e.getUrl() + " " + e.getStatusCode());
         } catch (IOException e) {
             System.err.println("Downloader failed to download: " + e.getMessage());
-        } catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             System.out.println("Invalid link");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
     }
