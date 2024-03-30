@@ -14,13 +14,24 @@ import java.util.Map;
 public class GatewayBarrel extends UnicastRemoteObject implements GatewayBarrelInt {
   private final List<String> barrelIds;
   private final Map<String, BarrelInt> barrels;
+  private final Map<String, Double> averageResponseTime;
   private int currentBarrelIndex;
 
   public GatewayBarrel() throws RemoteException {
     super();
     this.barrelIds = new ArrayList<>();
     this.barrels = new HashMap<>();
+    this.averageResponseTime = new HashMap<>();
     this.currentBarrelIndex = 0;
+  }
+
+  private void registerAverageTime(String idBarrel, double responseTime) {
+    if (!averageResponseTime.containsKey(idBarrel)) {
+      averageResponseTime.put(idBarrel, responseTime);
+    } else {
+        double previousAverageTime = averageResponseTime.get(idBarrel);
+        averageResponseTime.put(idBarrel, (previousAverageTime + responseTime) / 2);
+    }
   }
 
   @Override
@@ -41,6 +52,7 @@ public class GatewayBarrel extends UnicastRemoteObject implements GatewayBarrelI
       } catch (RemoteException e) {
           barrels.remove(currentBarrelId);
           barrelIds.remove(currentBarrelId);
+          averageResponseTime.remove(currentBarrelId);
           numBarrels--;
           if(currentBarrelIndex >= numBarrels) {
             currentBarrelIndex = 0;
@@ -63,10 +75,16 @@ public class GatewayBarrel extends UnicastRemoteObject implements GatewayBarrelI
 
       try {
         currentBarrelIndex = (currentBarrelIndex + 1) % numBarrels;
-        return currentBarrel.search(words, page);
+        long startTime = System.nanoTime();
+        Site[] sites = currentBarrel.search(words, page);
+        long endTime = System.nanoTime();
+        double elapsedTime = (endTime - startTime) / 1e7;
+        registerAverageTime(currentBarrelId, elapsedTime);
+        return sites;
       } catch (RemoteException e) {
         barrels.remove(currentBarrelId);
         barrelIds.remove(currentBarrelId);
+        averageResponseTime.remove(currentBarrelId);
         numBarrels--;
         if(currentBarrelIndex >= numBarrels) {
           currentBarrelIndex = 0;
