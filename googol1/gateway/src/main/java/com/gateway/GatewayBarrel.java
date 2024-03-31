@@ -137,9 +137,21 @@ public class GatewayBarrel extends UnicastRemoteObject implements GatewayBarrelI
     }
   }
 
-  public Set<String> getBarrelIds() throws RemoteException {
-    return new HashSet<>(barrelIds);
+  public Set<String> getAliveBarrels() throws RemoteException {
+    Set<String> aliveBarrels = new HashSet<>();
+    for (Map.Entry<String, BarrelInt> entry : barrels.entrySet()) {
+        String barrelId = entry.getKey();
+        BarrelInt barrel = entry.getValue();
+        try {
+          barrel.alive();
+          aliveBarrels.add(barrelId);
+        } catch (RemoteException e) {
+          
+        }
+    }
+    return aliveBarrels;
   }
+
 
   public Map<String, List<Double>> getResponseTimes() throws RemoteException {
     return new HashMap<>(responseTimes);

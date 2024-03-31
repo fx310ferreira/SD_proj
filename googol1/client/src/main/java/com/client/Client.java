@@ -131,7 +131,7 @@ public class Client {
 
     public void displayActiveBarrels() {
         try {
-            Set<String> activeBarrels = server.getBarrelIds();
+            Set<String> activeBarrels = server.getAliveBarrels();
             System.out.println("--------------------------\nActive barrels:");
             int count = 0;
             for (String barrelId : activeBarrels) {

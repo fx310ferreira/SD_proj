@@ -48,8 +48,8 @@ public class Gateway extends UnicastRemoteObject implements GatewayInt {
     }
 
     @Override
-    public Set<String> getBarrelIds() throws RemoteException {
-        return gatewayBarrel.getBarrelIds();
+    public Set<String> getAliveBarrels() throws RemoteException {
+        return gatewayBarrel.getAliveBarrels();
     }
 
     @Override

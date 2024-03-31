@@ -11,6 +11,6 @@ public interface GatewayInt extends Remote {
     boolean indexURL(String url) throws RemoteException;
     Site[] search(String query, int page) throws RemoteException;
     Site[] linkedPages(String url) throws RemoteException;
-    Set<String> getBarrelIds() throws RemoteException;
+    Set<String> getAliveBarrels() throws RemoteException;
     Map<String, List<Double>> getResponseTimes() throws RemoteException;
 }
