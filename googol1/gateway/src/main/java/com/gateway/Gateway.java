@@ -67,9 +67,9 @@ public class Gateway extends UnicastRemoteObject implements GatewayInt {
             System.out.println("Gateway is running...");
         } catch (RemoteException e) {
             System.err.println("Failed creating registry: " + e.getMessage());
+            System.exit(0);
         } catch (MalformedURLException e){
             System.out.println("Rebind url is malformed: " + e.getMessage());
-        } finally {
             System.exit(0);
         }
     }
