@@ -11,8 +11,8 @@ import com.common.DispatcherInt;
 public class Dispatcher extends UnicastRemoteObject implements DispatcherInt{
     ConcurrentLinkedQueue<String> url_queue;
     Set<String> processing;
-
     GatewayBarrel gatewayBarrel;
+    long id = 0;
 
     public Dispatcher(GatewayBarrel gatewayBarrel) throws RemoteException{
         this.url_queue = new ConcurrentLinkedQueue<>();
@@ -44,12 +44,17 @@ public class Dispatcher extends UnicastRemoteObject implements DispatcherInt{
     }
 
     @Override
-    public void finishedProcessing(String url) throws RemoteException {
+    public synchronized long getId() throws RemoteException {
+        return id++;
+    }
+
+    @Override
+    public synchronized void finishedProcessing(String url) throws RemoteException {
         processing.remove(url);
     }
 
     @Override
-    public boolean indexedUrl(String url) throws RemoteException {
+    public synchronized boolean indexedUrl(String url) throws RemoteException {
         return (processing.contains(url) || url_queue.contains(url) || gatewayBarrel.indexedUrl(url));
     }
 

@@ -51,6 +51,7 @@ public class Downloader {
             content.put("words", words);
             content.put("title", doc.title());
             content.put("type", "index");
+            content.put("id", this.dispatcher.getId());
             multicastMsg(content);
 
             Elements elements = doc.select("a[href]");
@@ -60,6 +61,7 @@ public class Downloader {
                 content.put("url", url);
                 content.put("url1", link);
                 content.put("type", "link_link");
+                content.put("id", this.dispatcher.getId());
                 multicastMsg(content);
                 if (dispatcher.indexedUrl(link)) {
                     System.out.println("Link already indexed: " + link);
@@ -95,9 +97,6 @@ public class Downloader {
 
             System.out.println("Downloader is ready");
             while (true) {
-                for (int i = 0; i < 100; i++) {
-                    downloader.multicastMsg(new JSONObject().put("type", "test"));
-                }
                 System.out.println("Downloader is waiting for a URL to download...");
                 String url = downloader.dispatcher.pop();
                 System.out.println("Downloader pooped url: " + url);

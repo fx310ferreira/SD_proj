@@ -76,7 +76,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInt {
             while ((read = in.read()) != 0) {
                 out.write(read);
             }
-            return new JSONObject(new String(out.toByteArray()));
+            return new JSONObject(out.toString());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -111,9 +111,6 @@ public class Barrel extends UnicastRemoteObject implements BarrelInt {
                     barrel.database.indexUrl(message.getString("url"), message.getJSONArray("words"), message.getString("title"));
                 else if(message.getString("type").equals("link_link")){
                     barrel.database.addLink(message.getString("url"), message.getString("url1"));
-                } else if (message.getString("type").equals("test")){
-                    System.out.println("Test message received: " + i++);
-                    Thread.sleep(100);
                 }
             }
         } catch (IOException e) {
