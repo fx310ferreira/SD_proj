@@ -6,32 +6,26 @@ import com.common.Site;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
-import java.util.HashMap;
+
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
 
 public class GatewayBarrel extends UnicastRemoteObject implements GatewayBarrelInt {
   private final List<String> barrelIds;
   private final Map<String, BarrelInt> barrels;
-  private final Map<String, Double> averageResponseTime;
+  private final Map<String, List<Double>> responseTimes;
   private int currentBarrelIndex;
 
   public GatewayBarrel() throws RemoteException {
     super();
     this.barrelIds = new ArrayList<>();
     this.barrels = new HashMap<>();
-    this.averageResponseTime = new HashMap<>();
+    this.responseTimes = new HashMap<>();
     this.currentBarrelIndex = 0;
-  }
-
-  private void registerAverageTime(String idBarrel, double responseTime) {
-    if (!averageResponseTime.containsKey(idBarrel)) {
-      averageResponseTime.put(idBarrel, responseTime);
-    } else {
-        double previousAverageTime = averageResponseTime.get(idBarrel);
-        averageResponseTime.put(idBarrel, (previousAverageTime + responseTime) / 2);
-    }
   }
 
   @Override
@@ -52,7 +46,7 @@ public class GatewayBarrel extends UnicastRemoteObject implements GatewayBarrelI
       } catch (RemoteException e) {
           barrels.remove(currentBarrelId);
           barrelIds.remove(currentBarrelId);
-          averageResponseTime.remove(currentBarrelId);
+          responseTimes.remove(currentBarrelId);
           numBarrels--;
           if(currentBarrelIndex >= numBarrels) {
             currentBarrelIndex = 0;
@@ -79,12 +73,15 @@ public class GatewayBarrel extends UnicastRemoteObject implements GatewayBarrelI
         Site[] sites = currentBarrel.search(words, page);
         long endTime = System.nanoTime();
         double elapsedTime = (endTime - startTime) / 1e7;
-        registerAverageTime(currentBarrelId, elapsedTime);
+        if (!responseTimes.containsKey(currentBarrelId)) {
+          responseTimes.put(currentBarrelId, new ArrayList<>());
+        }
+        responseTimes.get(currentBarrelId).add(elapsedTime);
         return sites;
       } catch (RemoteException e) {
         barrels.remove(currentBarrelId);
         barrelIds.remove(currentBarrelId);
-        averageResponseTime.remove(currentBarrelId);
+        responseTimes.remove(currentBarrelId);
         numBarrels--;
         if(currentBarrelIndex >= numBarrels) {
           currentBarrelIndex = 0;
@@ -138,5 +135,13 @@ public class GatewayBarrel extends UnicastRemoteObject implements GatewayBarrelI
         System.out.println("Barrel with ID " + barrelId + " resubscribed.");
       }
     }
+  }
+
+  public Set<String> getBarrelIds() throws RemoteException {
+    return new HashSet<>(barrelIds);
+  }
+
+  public Map<String, List<Double>> getResponseTimes() throws RemoteException {
+    return new HashMap<>(responseTimes);
   }
 }

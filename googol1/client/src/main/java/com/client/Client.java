@@ -4,8 +4,12 @@ import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 
+import com.common.BarrelInt;
 import com.common.GatewayInt;
 import com.common.Site;
 import com.utils.Utils;
@@ -125,6 +129,49 @@ public class Client {
         }
     }
 
+    public void displayActiveBarrels() {
+        try {
+            Set<String> activeBarrels = server.getBarrelIds();
+            System.out.println("--------------------------\nActive barrels:");
+            int count = 0;
+            for (String barrelId : activeBarrels) {
+                System.out.print(barrelId);
+                count++;
+                if (count < activeBarrels.size()) {
+                    System.out.print(", ");
+                }
+            }
+            System.out.println("\n--------------------------");
+        } catch (RemoteException e) {
+            System.out.println("Error fetching active barrels: " + e.getMessage());
+        }
+    }
+
+    public void displayAverageResponse() {
+        try {
+            Map<String, List<Double>> responseTimes = server.getResponseTimes();
+            System.out.println("--------------------------\nAverage response time per barrel:");
+            for (Map.Entry<String, List<Double>> entry : responseTimes.entrySet()) {
+                String barrelId = entry.getKey();
+                List<Double> times = entry.getValue();
+
+                if (!times.isEmpty()) {
+                    double total = 0.0;
+                    for (Double time : times) {
+                        total += time;
+                    }
+                    double average = total / times.size();
+                    System.out.println(barrelId + ": " + average + " seconds");
+                } else {
+                    System.out.println(barrelId + ": No response time recorded");
+                }
+            }
+            System.out.println("--------------------------");
+        } catch (RemoteException e) {
+            System.out.println("Error fetching response times: " + e.getMessage());
+        }
+    }
+
     public static void main(String[] args) {
 
         try {
@@ -140,14 +187,12 @@ public class Client {
                     --------------------------
                     1 - Search
                     2 - Index a URL
-                    3 - Exit
+                    3 - Statistics
+                    4 - Exit
                     --------------------------
                     ->""");
                 String message = scanner.nextLine().strip();
                 switch (message) {
-                    case "3":
-                        System.out.println("Goodbye");
-                        break label;
                     case "1":
                         System.out.print("Enter the search query: ");
                         message = scanner.nextLine().strip();
@@ -170,6 +215,14 @@ public class Client {
                             System.out.println("Invalid link write an absolute link like: http://google.com");
                         }
                         break;
+                    case "3":
+                        System.out.println("Statistics:");
+                        client.displayActiveBarrels();
+                        client.displayAverageResponse();
+                        break;
+                    case "4":
+                        System.out.println("Goodbye");
+                        break label;
                     default:
                         System.out.println("Invalid option");
                         break;
