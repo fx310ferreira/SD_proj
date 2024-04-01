@@ -129,11 +129,11 @@ public class GatewayBarrel extends UnicastRemoteObject implements GatewayBarrelI
       try {
           barrels.get(barrelId).alive();
           System.out.println("Barrel with ID " + barrelId + " is already subscribed.");
-          return true;
+          return false;
       } catch (RemoteException e) {
           barrels.put(barrelId, barrel);
           System.out.println("Barrel with ID " + barrelId + " resubscribed.");
-          return false;
+          return true;
       }
     }
   }
