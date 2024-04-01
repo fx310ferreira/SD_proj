@@ -12,12 +12,13 @@ public class Dispatcher extends UnicastRemoteObject implements DispatcherInt{
     ConcurrentLinkedQueue<String> url_queue;
     Set<String> processing;
     GatewayBarrel gatewayBarrel;
-    long id = 0;
+    long id;
 
     public Dispatcher(GatewayBarrel gatewayBarrel) throws RemoteException{
         this.url_queue = new ConcurrentLinkedQueue<>();
         this.processing = new ConcurrentSkipListSet<>();
         this.gatewayBarrel = gatewayBarrel;
+        this.id = 1;
     }
 
     @Override

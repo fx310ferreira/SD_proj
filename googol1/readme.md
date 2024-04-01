@@ -17,11 +17,10 @@
  - [x] Search words: order
  - [x] Barrel metrics
  - [ ] Add rollback and commits on every database operation
- - [ ] Correct errors
- - [ ] Javadock
+ - [ ] Change all system.out.println to system.err.println and make them more compreensible, also make them do system.exit() when necessary
+ - [ ] Javadoc
  - [ ] Text is missing when link is searched
  - [x] Correct ascii
  - [x] Search urls
  - [ ] Wierd things happen when we close programs ask the teacher
- - [ ] Wierd thing happening with / in the end of the url se what is happening
  - [ ] Add feedback to the barrel when it fails to connect
