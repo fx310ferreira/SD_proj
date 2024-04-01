@@ -102,7 +102,10 @@ public class Barrel extends UnicastRemoteObject implements BarrelInt {
 
         try {
             GatewayBarrelInt server = (GatewayBarrelInt) Naming.lookup("rmi://" + barrel.RMI_ADDRESS +"/barrels");
-            server.subscribe(barrel, barrel.BARREL_ID);
+            if (!server.subscribe(barrel, barrel.BARREL_ID)) {
+                System.out.println("Failed to subscribe barrel, ID already in use.");
+                return;
+            }
             System.out.println("Barrel is ready");
             int i = 0;
             while(true){

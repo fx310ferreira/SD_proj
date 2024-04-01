@@ -118,21 +118,22 @@ public class GatewayBarrel extends UnicastRemoteObject implements GatewayBarrelI
   }
 
   @Override
-  public synchronized void subscribe(BarrelInt barrel, String barrelId) throws RemoteException {
-    // Verifica se o barril já está inscrito
+  public synchronized boolean subscribe(BarrelInt barrel, String barrelId) throws RemoteException {
     if (!barrels.containsKey(barrelId)) {
       barrels.put(barrelId, barrel);
       barrelIds.add(barrelId);
+      responseTimes.put(barrelId, new ArrayList<>());
       System.out.println("Barrel with ID " + barrelId + " subscribed.");
+      return true;
     } else {
-      // Se o barril já estiver inscrito, verifica se está ativo
       try {
-        barrels.get(barrelId).alive();
-        System.out.println("Barrel with ID " + barrelId + " is already subscribed.");
+          barrels.get(barrelId).alive();
+          System.out.println("Barrel with ID " + barrelId + " is already subscribed.");
+          return true;
       } catch (RemoteException e) {
-        // Se ocorrer uma exceção ao verificar a atividade do barril, assume-se que o barril está inativo
-        barrels.put(barrelId, barrel);
-        System.out.println("Barrel with ID " + barrelId + " resubscribed.");
+          barrels.put(barrelId, barrel);
+          System.out.println("Barrel with ID " + barrelId + " resubscribed.");
+          return false;
       }
     }
   }
@@ -140,14 +141,14 @@ public class GatewayBarrel extends UnicastRemoteObject implements GatewayBarrelI
   public Set<String> getAliveBarrels() throws RemoteException {
     Set<String> aliveBarrels = new HashSet<>();
     for (Map.Entry<String, BarrelInt> entry : barrels.entrySet()) {
-        String barrelId = entry.getKey();
-        BarrelInt barrel = entry.getValue();
-        try {
-          barrel.alive();
-          aliveBarrels.add(barrelId);
-        } catch (RemoteException e) {
-          
-        }
+      String barrelId = entry.getKey();
+      BarrelInt barrel = entry.getValue();
+      try {
+        barrel.alive();
+        aliveBarrels.add(barrelId);
+      } catch (RemoteException e) {
+        
+      }
     }
     return aliveBarrels;
   }

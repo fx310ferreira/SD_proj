@@ -161,7 +161,7 @@ public class Client {
                         total += time;
                     }
                     double average = total / times.size();
-                    System.out.println(barrelId + ": " + average + " seconds");
+                    System.out.println(barrelId + ": " + average + " ds");
                 } else {
                     System.out.println(barrelId + ": No response time recorded");
                 }
