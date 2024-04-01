@@ -65,11 +65,12 @@ public class Gateway extends UnicastRemoteObject implements GatewayInt {
             java.rmi.Naming.rebind("dispatcher", gateway.dispatcher);
             java.rmi.Naming.rebind("barrels", gateway.gatewayBarrel);
             System.out.println("Gateway is running...");
-
         } catch (RemoteException e) {
             System.err.println("Failed creating registry: " + e.getMessage());
+            System.exit(0);
         } catch (MalformedURLException e){
             System.out.println("Rebind url is malformed: " + e.getMessage());
+            System.exit(0);
         }
     }
 }

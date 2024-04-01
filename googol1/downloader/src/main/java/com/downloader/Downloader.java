@@ -39,19 +39,27 @@ public class Downloader {
         try {
             Document doc = Jsoup.connect(url).get();
             String text = doc.text();
-
             String[] words = Normalizer.normalize(text, Normalizer.Form.NFD)
                     .replaceAll("[^\\p{ASCII}]", "")
                     .replaceAll("\\p{Punct}", "")
                     .toLowerCase()
                     .split("\\s+");
-
-            JSONObject content = new JSONObject();
-            content.put("url", url);
-            content.put("words", words);
-            content.put("title", doc.title());
-            content.put("type", "index");
-            multicastMsg(content);
+            // Split words into chunks of 5000
+            int start = 0;
+            JSONObject content;
+            while (start < words.length) {
+                int end = Math.min(start + 5000, words.length);
+                String[] temp = new String[end - start];
+                System.arraycopy(words, start, temp, 0, end - start);
+                start = end;
+                content = new JSONObject();
+                content.put("url", url);
+                content.put("words", temp);
+                content.put("title", doc.title());
+                content.put("type", "index");
+                content.put("id", this.dispatcher.getId());
+                multicastMsg(content);
+            }
 
             Elements elements = doc.select("a[href]");
             for (Element element : elements) {
@@ -60,9 +68,10 @@ public class Downloader {
                 content.put("url", url);
                 content.put("url1", link);
                 content.put("type", "link_link");
+                content.put("id", this.dispatcher.getId());
                 multicastMsg(content);
                 if (dispatcher.indexedUrl(link)) {
-                    System.out.println("Link already indexed: " + link);
+//                    System.out.println("Link already indexed: " + link);
                 } else {
                     this.dispatcher.push(link);
                 }
@@ -85,7 +94,7 @@ public class Downloader {
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length, this.mcastGroup, this.PORT);
             this.socket.send(packet);
         } catch (IOException e) {
-            System.err.println("Error sending a multicast message: " + e.getMessage());
+            System.err.println("Error sending a multicast message: " + e.getMessage() + "msg id : " + content.getLong("id") + " size: " + content.toString().length());
         }
     }
 
@@ -95,12 +104,7 @@ public class Downloader {
 
             System.out.println("Downloader is ready");
             while (true) {
-                for (int i = 0; i < 100; i++) {
-                    downloader.multicastMsg(new JSONObject().put("type", "test"));
-                }
-                System.out.println("Downloader is waiting for a URL to download...");
                 String url = downloader.dispatcher.pop();
-                System.out.println("Downloader pooped url: " + url);
                 downloader.download(url);
                 downloader.dispatcher.finishedProcessing(url);
             }

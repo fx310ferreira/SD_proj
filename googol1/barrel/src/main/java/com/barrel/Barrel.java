@@ -27,6 +27,8 @@ public class Barrel extends UnicastRemoteObject implements BarrelInt {
     Database database;
     MulticastSocket socket;
     InetAddress mcastAddr;
+    MessageQueue messageQueue;
+
 
     Barrel() throws IOException, SQLException {
         super();
@@ -37,6 +39,7 @@ public class Barrel extends UnicastRemoteObject implements BarrelInt {
         this.socket = new MulticastSocket(this.PORT);
         this.database = new Database(this.BARREL_ID);
         this.mcastAddr = InetAddress.getByName(this.MULTICAST_ADDRESS);
+        this.messageQueue = new MessageQueue(this.database.startId);
     }
 
     @Override
@@ -76,9 +79,9 @@ public class Barrel extends UnicastRemoteObject implements BarrelInt {
             while ((read = in.read()) != 0) {
                 out.write(read);
             }
-            return new JSONObject(new String(out.toByteArray()));
+            return new JSONObject(out.toString());
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Error receiving multicast message: " + e.getMessage());
         }
         return null;
     }
@@ -98,6 +101,9 @@ public class Barrel extends UnicastRemoteObject implements BarrelInt {
         } catch (IOException e) {
             System.err.println("Error creating the multicast socket: " + e.getMessage());
             System.exit(0);
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+            System.exit(0);
         }
 
         try {
@@ -106,21 +112,16 @@ public class Barrel extends UnicastRemoteObject implements BarrelInt {
                 System.out.println("Failed to subscribe barrel, ID already in use.");
                 return;
             }
+            Recuperator recuperator = new Recuperator(barrel.messageQueue, barrel.socket, barrel.mcastAddr, barrel.PORT);
+            MessageProcessor messageProcessor = new MessageProcessor(barrel.messageQueue, barrel.database, barrel.socket, barrel.mcastAddr, barrel.PORT);
+            recuperator.start();
+            messageProcessor.start();
             System.out.println("Barrel is ready");
-            int i = 0;
             while(true){
-                JSONObject message = barrel.receiveMltcMsg();
-                if(message.getString("type").equals("index"))
-                    barrel.database.indexUrl(message.getString("url"), message.getJSONArray("words"), message.getString("title"));
-                else if(message.getString("type").equals("link_link")){
-                    barrel.database.addLink(message.getString("url"), message.getString("url1"));
-                } else if (message.getString("type").equals("test")){
-                    System.out.println("Test message received: " + i++);
-                    Thread.sleep(100);
-                }
+                barrel.messageQueue.push(barrel.receiveMltcMsg());
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Error: " + e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
         }

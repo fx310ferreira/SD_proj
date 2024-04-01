@@ -3,6 +3,7 @@ package com.barrel;
 import com.common.Site;
 import com.utils.Utils;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.sql.Array;
 import java.sql.Connection;
@@ -20,11 +21,13 @@ public class Database {
     private final String PASSWORD;
     private final String DB_ID;
     private final Connection connection;
+    long startId;
 
     Database(String db_id) throws SQLException {
         this.DB_URL = Utils.readProperties(this, "DB_URL", "jdbc:postgresql://localhost:5433/", "database.properties");
         this.USER  = Utils.readProperties(this, "USER", "user", "database.properties");
         this.PASSWORD = Utils.readProperties(this, "PASSWORD", "admin", "database.properties");
+        startId = 0;
         // TODO filter invalid db_id change to function
         if (!db_id.matches("^[a-zA-Z0-9_]+$"))
             throw new SQLException("Invalid database name");
@@ -36,13 +39,28 @@ public class Database {
     Connection dbConnect() throws SQLException {
         try {
             Connection conn = DriverManager.getConnection(this.DB_URL + this.DB_ID, this.USER, this.PASSWORD);
-            System.out.println("Connected to DB: " + this.DB_ID);
+            this.startId = getMaxId(conn);
+            System.out.println("Connected to DB: " + this.DB_ID + " started with id " + startId);
             return conn;
         } catch (SQLException e){
             Connection conn = createDB();
             initDB(conn);
             return conn;
         }
+    }
+
+    private long getMaxId(Connection conn){
+        String stmt = "SELECT MAX(id) FROM messages";
+        try {
+            PreparedStatement statement = conn.prepareStatement(stmt);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getLong(1);
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to get max id: " + e.getMessage());
+        }
+        return 0;
     }
 
     private void initDB(Connection conn) throws SQLException {
@@ -56,8 +74,8 @@ public class Database {
 
                 CREATE TABLE links (
                     id   BIGSERIAL,
-                    link     VARCHAR(512) NOT NULL,
-                    title    VARCHAR(512),
+                    link     VARCHAR(2048) NOT NULL,
+                    title    VARCHAR(1024),
                     searches BIGINT NOT NULL DEFAULT 0,
                     indexed  BOOLEAN NOT NULL DEFAULT FALSE,
                     PRIMARY KEY(id)
@@ -75,6 +93,12 @@ public class Database {
                     links_id1    BIGINT,
                     count INTEGER DEFAULT 1,
                     PRIMARY KEY(links_id,links_id1)
+                );
+                
+                CREATE TABLE messages (
+                   id BIGINT,
+                   message JSONB NOT NULL,
+                   PRIMARY KEY(id)
                 );
 
                 ALTER TABLE words ADD UNIQUE (word);
@@ -112,11 +136,6 @@ public class Database {
     }
 
     long indexUrl(String url, JSONArray words, String title) throws SQLException {
-        System.out.println("Indexing URL: " + url);
-        if(indexedUrl(url)){
-            System.out.println("URL already indexed: " + url);
-            return -1;
-        }
         long linkId = getUrlId(url);
         if (linkId == -1) {
             System.out.println("Failed to index URL: " + url);
@@ -152,6 +171,7 @@ public class Database {
         connection.commit();
         return linkId;
     }
+
     boolean indexWordLink(long wordId, long linkId) {
         String stmt = """
                 INSERT INTO words_links (links_id, words_id)
@@ -164,15 +184,14 @@ public class Database {
             statement.setLong(1, linkId);
             statement.setLong(2, wordId);
             statement.execute();
-            System.out.println("Indexed word link: " + wordId + " " + linkId);
             return true;
         } catch (SQLException e) {
             System.out.println("Failed to index word link: " + wordId + " " + linkId);
         }
         return false;
     }
+
     boolean addLink(String url, String url1) throws SQLException {
-        System.out.println("Adding link: " + url + " " + url1);
         long linkId = getUrlId(url);
         long linkId1 = getUrlId(url1);
         if (linkId == -1 || linkId1 == -1) {
@@ -190,7 +209,6 @@ public class Database {
             statement.setLong(1, linkId);
             statement.setLong(2, linkId1);
             statement.execute();
-            System.out.println("Added link: " + url + " " + url1);
             connection.commit();
             return true;
         } catch (SQLException e) {
@@ -199,7 +217,7 @@ public class Database {
         }
         return true;
     }
-    long getUrlId(String url) {
+    long getUrlId(String url) throws SQLException {
         String stmt = """
         INSERT INTO links (link)
         VALUES (?)
@@ -216,10 +234,12 @@ public class Database {
             id = res.getLong("id");
         } catch (SQLException e) {
             System.out.println("Failed to insert URL: " + e.getMessage());
+            connection.rollback();
             return -1;
         }
         return id;
     }
+
     boolean indexedUrl(String url){
         String stmt = "SELECT indexed FROM links WHERE link = ? AND indexed = TRUE;";
         try {
@@ -232,6 +252,7 @@ public class Database {
         }
         return false;
     }
+
     long getWordId(String word) {
         String stmt = """
         INSERT INTO words (word)
@@ -247,13 +268,13 @@ public class Database {
             ResultSet res = statement.executeQuery();
             res.next();
             id = res.getLong("id");
-            System.out.println("Inserted word: " + word);
         } catch (SQLException e) {
             System.out.println("Failed to insert word: " + e.getMessage());
             return -1;
         }
         return id;
     }
+
     Site[] search(String[] words, int page) {
         Set<String> wordsSet = Set.of(words);
         ArrayList<Site> sites = new ArrayList<>();
@@ -286,10 +307,10 @@ public class Database {
             return null;
 
         }
-        System.out.println("Found " + sites+ " sites");
         Site[] sitesArray = new Site[sites.size()];
         return sites.toArray(sitesArray);
     }
+
     Site searchUrl(String url){
         String stmt = """
                 SELECT link, title FROM links WHERE link = ? AND indexed = TRUE;
@@ -330,5 +351,38 @@ public class Database {
         }
         Site[] sitesArray = new Site[sites.size()];
         return sites.toArray(sitesArray);
+    }
+
+    void insertMessage(long id, String message) throws SQLException {
+        String stmt = """
+                INSERT INTO messages (id, message)
+                VALUES (?, ? :: JSONB)
+                """;
+        try {
+            PreparedStatement statement = connection.prepareStatement(stmt);
+            statement.setLong(1, id);
+            statement.setString(2, message);
+            statement.execute();
+        } catch (SQLException e) {
+            System.out.println("Failed to insert message: " + e.getMessage());
+            connection.rollback();
+        }
+    }
+
+    JSONObject getMessage(long id) {
+        String stmt = """
+                SELECT message FROM messages WHERE id = ?
+                """;
+        try {
+            PreparedStatement statement = connection.prepareStatement(stmt);
+            statement.setLong(1, id);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return new JSONObject(resultSet.getString("message"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to get message: " + e.getMessage());
+        }
+        return null;
     }
 }
