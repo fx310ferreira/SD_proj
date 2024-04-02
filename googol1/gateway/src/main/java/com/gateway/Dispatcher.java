@@ -1,6 +1,7 @@
 package com.gateway;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.rmi.server.UnicastRemoteObject;
 import java.rmi.RemoteException;
@@ -9,13 +10,13 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import com.common.DispatcherInt;
 
 public class Dispatcher extends UnicastRemoteObject implements DispatcherInt{
-    ConcurrentLinkedQueue<String> url_queue;
+    ConcurrentLinkedDeque<String> url_queue;
     Set<String> processing;
     GatewayBarrel gatewayBarrel;
     long id;
 
     public Dispatcher(GatewayBarrel gatewayBarrel) throws RemoteException{
-        this.url_queue = new ConcurrentLinkedQueue<>();
+        this.url_queue = new ConcurrentLinkedDeque<>();
         this.processing = new ConcurrentSkipListSet<>();
         this.gatewayBarrel = gatewayBarrel;
         this.id = 1;
@@ -24,7 +25,16 @@ public class Dispatcher extends UnicastRemoteObject implements DispatcherInt{
     @Override
     public synchronized void push(String url) {
         if(url.startsWith("http://") || url.startsWith("https://")){
-            url_queue.add(url);
+            url_queue.addLast(url);
+            System.out.println("Pushed: " + url + " Size: " + url_queue.size());
+            notify();
+        }
+    }
+
+    @Override
+    public synchronized void pushFront(String url) {
+        if(url.startsWith("http://") || url.startsWith("https://")){
+            url_queue.addFirst(url);
             System.out.println("Pushed: " + url + " Size: " + url_queue.size());
             notify();
         }

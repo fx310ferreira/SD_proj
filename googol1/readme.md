@@ -16,11 +16,13 @@
  - [x] Think in a way for us not to have inactive barrels inside the array list
  - [x] Search words: order
  - [x] Barrel metrics
+ - [x] Add feedback to the barrel when it fails to connect
  - [ ] Add rollback and commits on every database operation
  - [ ] Change all system.out.println to system.err.println and make them more compreensible, also make them do system.exit() when necessary
  - [ ] Javadoc
  - [ ] Text is missing when link is searched
  - [x] Correct ascii
  - [x] Search urls
- - [ ] Wierd things happen when we close programs ask the teacher
- - [ ] Add feedback to the barrel when it fails to connect
+ - [x] Double ended queue to allow user to insert url
+ - [ ] Add client callback to update admin page
+ - [ ] Change client

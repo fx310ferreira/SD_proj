@@ -32,7 +32,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInt {
             return false;
         }
         System.out.println("Indexing " + url);
-        dispatcher.push(url);
+        dispatcher.pushFront(url);
         return true;
     }
 
