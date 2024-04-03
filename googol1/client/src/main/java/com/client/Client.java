@@ -1,28 +1,29 @@
 package com.client;
+
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
-import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
-import com.common.BarrelInt;
+import com.common.ClientInt;
 import com.common.GatewayInt;
 import com.common.Site;
 import com.utils.Utils;
 
-
-public class Client {
+public class Client extends UnicastRemoteObject implements ClientInt {
 
     String RMI_ADDRESS;
     GatewayInt server;
 
     public Client() throws MalformedURLException, NotBoundException, RemoteException {
         this.RMI_ADDRESS = Utils.readProperties(this, "RMI_ADDRESS", "localhost");
-        this.server = (GatewayInt) Naming.lookup("rmi://" + this.RMI_ADDRESS +"/gateway");
+        this.server = (GatewayInt) Naming.lookup("rmi://" + this.RMI_ADDRESS + "/gateway");
+        server.addClient(this);
     }
 
     public void linkedPages(Site[] url, Scanner scanner) throws RemoteException {
@@ -40,9 +41,9 @@ public class Client {
                     return;
                 }
                 System.out.print("""
-                    --------------------------
-                    Linked pages
-                    """);
+                        --------------------------
+                        Linked pages
+                        """);
                 for (var site : sites) {
                     System.out.println(site);
                 }
@@ -57,23 +58,23 @@ public class Client {
     public void searchMenu(String message, Scanner scanner) throws RemoteException {
         int page = 0;
         String comand;
-        while (true){
+        while (true) {
             Site[] sites = server.search(message, page);
 
             System.out.print("""
-                        --------------------------
-                        Results
-                        """);
+                    --------------------------
+                    Results
+                    """);
             int i = 1;
             for (var site : sites) {
                 System.out.println(i++ + ":" + site);
             }
-            if(sites.length == 0){
+            if (sites.length == 0) {
                 System.out.println("No sites were found");
                 return;
             }
             System.out.println("--------------------------");
-            if (sites.length < 10 && page == 0){
+            if (sites.length < 10 && page == 0) {
                 System.out.print("""
                         1 - Exit
                         2 - Linked pages
@@ -81,7 +82,9 @@ public class Client {
                         ->""");
                 comand = scanner.nextLine();
                 switch (comand) {
-                    case "1" -> {return;}
+                    case "1" -> {
+                        return;
+                    }
                     case "2" -> linkedPages(sites, scanner);
                 }
             } else if (sites.length < 10 && page > 0) {
@@ -94,7 +97,9 @@ public class Client {
                 comand = scanner.nextLine();
                 switch (comand) {
                     case "1" -> page--;
-                    case "2" -> {return;}
+                    case "2" -> {
+                        return;
+                    }
                     case "3" -> linkedPages(sites, scanner);
                 }
             } else if (sites.length >= 10 && page == 0) {
@@ -107,7 +112,9 @@ public class Client {
                 comand = scanner.nextLine();
                 switch (comand) {
                     case "1" -> page++;
-                    case "2" -> {return;}
+                    case "2" -> {
+                        return;
+                    }
                     case "3" -> linkedPages(sites, scanner);
                 }
             } else {
@@ -122,16 +129,19 @@ public class Client {
                 switch (comand) {
                     case "1" -> page--;
                     case "2" -> page++;
-                    case "3" -> {return;}
+                    case "3" -> {
+                        return;
+                    }
                     case "4" -> linkedPages(sites, scanner);
                 }
             }
         }
     }
 
-    public void displayActiveBarrels() {
+    @Override
+    public void updateStatistics(Set<String> activeBarrels, Map<String, List<Double>> responseTimes) {
         try {
-            Set<String> activeBarrels = server.getAliveBarrels();
+            // Display active barrels
             System.out.println("--------------------------\nActive barrels:");
             int count = 0;
             for (String barrelId : activeBarrels) {
@@ -142,14 +152,8 @@ public class Client {
                 }
             }
             System.out.println("\n--------------------------");
-        } catch (RemoteException e) {
-            System.out.println("Error fetching active barrels: " + e.getMessage());
-        }
-    }
 
-    public void displayAverageResponse() {
-        try {
-            Map<String, List<Double>> responseTimes = server.getResponseTimes();
+            // Display average response time per barrel
             System.out.println("--------------------------\nAverage response time per barrel:");
             for (Map.Entry<String, List<Double>> entry : responseTimes.entrySet()) {
                 String barrelId = entry.getKey();
@@ -167,8 +171,8 @@ public class Client {
                 }
             }
             System.out.println("--------------------------");
-        } catch (RemoteException e) {
-            System.out.println("Error fetching response times: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Error fetching statistics: " + e.getMessage());
         }
     }
 
@@ -179,18 +183,16 @@ public class Client {
             Scanner scanner = new Scanner(System.in);
 
             System.out.println("""
-                                --------------------------
-                                Welcome to Googol""");
-            label:
-            while (true) {
+                    --------------------------
+                    Welcome to Googol""");
+            label: while (true) {
                 System.out.print("""
-                    --------------------------
-                    1 - Search
-                    2 - Index a URL
-                    3 - Statistics
-                    4 - Exit
-                    --------------------------
-                    ->""");
+                        --------------------------
+                        1 - Search
+                        2 - Index a URL
+                        3 - Exit
+                        --------------------------
+                        ->""");
                 String message = scanner.nextLine().strip();
                 switch (message) {
                     case "1":
@@ -205,7 +207,7 @@ public class Client {
                     case "2":
                         System.out.print("Enter the URL: ");
                         message = scanner.nextLine().strip();
-                        if((message.startsWith("http://") || message.startsWith("https://"))){
+                        if ((message.startsWith("http://") || message.startsWith("https://"))) {
                             if (!client.server.indexURL(message)) {
                                 System.out.println("URL already indexed");
                             } else {
@@ -216,11 +218,6 @@ public class Client {
                         }
                         break;
                     case "3":
-                        System.out.println("Statistics:");
-                        client.displayActiveBarrels();
-                        client.displayAverageResponse();
-                        break;
-                    case "4":
                         System.out.println("Goodbye");
                         break label;
                     default:
@@ -229,8 +226,7 @@ public class Client {
                 }
             }
             scanner.close();
-        }
-        catch (RemoteException | NotBoundException | MalformedURLException | RuntimeException e) {
+        } catch (RemoteException | NotBoundException | MalformedURLException | RuntimeException e) {
             System.out.println("Gateway is down please try again later: " + e.getMessage());
         }
     }

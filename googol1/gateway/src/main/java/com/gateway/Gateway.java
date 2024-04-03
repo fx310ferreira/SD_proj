@@ -3,25 +3,29 @@ import java.net.MalformedURLException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
+import com.common.ClientInt;
 import com.common.GatewayInt;
 import com.common.Site;
 import com.utils.Utils;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class Gateway extends UnicastRemoteObject implements GatewayInt {
 
+    int PORT;
     GatewayBarrel gatewayBarrel;
     Dispatcher dispatcher;
-    int PORT;
+    private HashSet<ClientInt> clients;
 
     protected Gateway() throws RemoteException {
         super();
         this.PORT = Integer.parseInt(Utils.readProperties(this, "PORT", "1099"));
-        this.gatewayBarrel = new GatewayBarrel();
+        this.gatewayBarrel = new GatewayBarrel(this);
         this.dispatcher = new Dispatcher(this.gatewayBarrel);
+        this.clients = new HashSet<>();
     }
 
 
@@ -39,7 +43,9 @@ public class Gateway extends UnicastRemoteObject implements GatewayInt {
     @Override
     public Site[] search(String query, int page) throws RemoteException {
         System.out.println("Searching for " + query);
-        return gatewayBarrel.search(query.split(" "), page);
+        Site[] response = gatewayBarrel.search(query.split(" "), page);
+        this.sendUpdatedStatistics();
+        return response;
     }
 
     @Override
@@ -48,13 +54,36 @@ public class Gateway extends UnicastRemoteObject implements GatewayInt {
     }
 
     @Override
-    public Set<String> getAliveBarrels() throws RemoteException {
-        return gatewayBarrel.getAliveBarrels();
-    }
-
-    @Override
     public Map<String, List<Double>> getResponseTimes() throws RemoteException {
         return gatewayBarrel.getResponseTimes();
+    }
+    
+    @Override
+    public void addClient(ClientInt client) {
+        clients.add(client);
+        try {
+            client.updateStatistics(gatewayBarrel.getBarrels(), getResponseTimes());
+        } catch (RemoteException e) {
+            System.err.println("Error fetching statistics: " + e.getMessage());
+        }
+    }
+
+    public void sendUpdatedStatistics() {
+        try {
+            Set<String> activeBarrels = gatewayBarrel.getBarrels();
+            Map<String, List<Double>> responseTimes = getResponseTimes();
+    
+            for (ClientInt client : clients) {
+                try {
+                    client.updateStatistics(activeBarrels, responseTimes);
+                } catch (RemoteException e) {
+                    System.err.println("Client is not reachable: " + e.getMessage());
+                    clients.remove(client);
+                }
+            }
+        } catch (RemoteException e) {
+            System.err.println("Error fetching statistics: " + e.getMessage());
+        }
     }
 
     public static void main(String[] args) {

@@ -19,13 +19,15 @@ public class GatewayBarrel extends UnicastRemoteObject implements GatewayBarrelI
   private final Map<String, BarrelInt> barrels;
   private final Map<String, List<Double>> responseTimes;
   private int currentBarrelIndex;
+  private final Gateway gateway;
 
-  public GatewayBarrel() throws RemoteException {
+  public GatewayBarrel(Gateway gateway) throws RemoteException {
     super();
     this.barrelIds = new ArrayList<>();
     this.barrels = new HashMap<>();
     this.responseTimes = new HashMap<>();
     this.currentBarrelIndex = 0;
+    this.gateway = gateway;
   }
 
   @Override
@@ -124,11 +126,13 @@ public class GatewayBarrel extends UnicastRemoteObject implements GatewayBarrelI
       barrelIds.add(barrelId);
       responseTimes.put(barrelId, new ArrayList<>());
       System.out.println("Barrel with ID " + barrelId + " subscribed.");
+      this.gateway.sendUpdatedStatistics();
       return true;
     } else {
       try {
           barrels.get(barrelId).alive();
           System.out.println("Barrel with ID " + barrelId + " is already subscribed.");
+          this.gateway.sendUpdatedStatistics();
           return false;
       } catch (RemoteException e) {
           barrels.put(barrelId, barrel);
@@ -138,23 +142,11 @@ public class GatewayBarrel extends UnicastRemoteObject implements GatewayBarrelI
     }
   }
 
-  public Set<String> getAliveBarrels() throws RemoteException {
-    Set<String> aliveBarrels = new HashSet<>();
-    for (Map.Entry<String, BarrelInt> entry : barrels.entrySet()) {
-      String barrelId = entry.getKey();
-      BarrelInt barrel = entry.getValue();
-      try {
-        barrel.alive();
-        aliveBarrels.add(barrelId);
-      } catch (RemoteException e) {
-        
-      }
-    }
-    return aliveBarrels;
-  }
-
-
   public Map<String, List<Double>> getResponseTimes() throws RemoteException {
     return new HashMap<>(responseTimes);
+  }
+
+  public Set<String> getBarrels() throws RemoteException {
+    return new HashSet<>(barrelIds);
   }
 }
