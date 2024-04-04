@@ -8,6 +8,7 @@ import com.common.GatewayInt;
 import com.common.Site;
 import com.utils.Utils;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +23,8 @@ public class Gateway extends UnicastRemoteObject implements GatewayInt {
     int PORT;
     GatewayBarrel gatewayBarrel;
     Dispatcher dispatcher;
-    private HashSet<ClientInt> clients;
+    private final HashSet<ClientInt> clients;
+    private final HashMap<String, Integer> searches;
 
     /**
      * Constructor for the Gateway class.
@@ -35,6 +37,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInt {
         this.gatewayBarrel = new GatewayBarrel(this);
         this.dispatcher = new Dispatcher(this.gatewayBarrel);
         this.clients = new HashSet<>();
+        this.searches = new HashMap<>();
     }
 
     /**
@@ -67,6 +70,11 @@ public class Gateway extends UnicastRemoteObject implements GatewayInt {
     public Site[] search(String query, int page) throws RemoteException {
         System.out.println("Searching for " + query);
         Site[] response = gatewayBarrel.search(query.split(" "), page);
+        if(searches.containsKey(query)){
+            searches.put(query, searches.get(query) + 1);
+        } else {
+            searches.put(query, 1);
+        }
         this.sendUpdatedStatistics();
         return response;
     }
@@ -103,10 +111,23 @@ public class Gateway extends UnicastRemoteObject implements GatewayInt {
     public void addClient(ClientInt client) {
         clients.add(client);
         try {
-            client.updateStatistics(gatewayBarrel.getBarrels(), getResponseTimes());
+            client.updateStatistics(gatewayBarrel.getBarrels(), getResponseTimes(), getTopSearches());
         } catch (RemoteException e) {
             System.err.println("Error fetching statistics: " + e.getMessage());
         }
+    }
+
+    /**
+     * Retrieves the top search queries from the Gateway.
+     * 
+     * @return an array of top search queries.
+     */
+    public String[] getTopSearches() {
+        return searches.entrySet().stream()
+            .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue()))
+            .limit(10)
+            .map(Map.Entry::getKey)
+            .toArray(String[]::new);
     }
 
     /**
@@ -119,7 +140,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInt {
     
             for (ClientInt client : clients) {
                 try {
-                    client.updateStatistics(activeBarrels, responseTimes);
+                    client.updateStatistics(activeBarrels, responseTimes, getTopSearches());
                 } catch (RemoteException e) {
                     System.err.println("Client is not reachable: " + e.getMessage());
                     clients.remove(client);
