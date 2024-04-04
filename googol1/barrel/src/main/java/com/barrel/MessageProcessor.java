@@ -8,6 +8,10 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.sql.SQLException;
 
+/**
+ * Represents a message processor thread in the system.
+ * A MessageProcessor is responsible for processing messages from the message queue and updating the database accordingly.
+ */
 public class MessageProcessor extends Thread{
     private final MessageQueue messageQueue;
     private final Database database;
@@ -15,6 +19,15 @@ public class MessageProcessor extends Thread{
     private final InetAddress mcastGroup;
     private final int PORT;
 
+    /**
+     * Constructs a MessageProcessor object with the given message queue, database, multicast socket, multicast group, and port.
+     *
+     * @param messageQueue The message queue to process messages from.
+     * @param database     The database to update with the processed messages.
+     * @param socket       The multicast socket used for sending messages.
+     * @param mcastGroup   The multicast group to send messages to.
+     * @param PORT         The port number used for multicast communication.
+     */
     public MessageProcessor(MessageQueue messageQueue, Database database, MulticastSocket socket, InetAddress mcastGroup, int PORT){
         this.messageQueue = messageQueue;
         this.database = database;
@@ -22,6 +35,10 @@ public class MessageProcessor extends Thread{
         this.mcastGroup = mcastGroup;
         this.PORT = PORT;
     }
+
+    /**
+     * Runs the MessageProcessor thread, continuously processing messages from the message queue and updating the database accordingly.
+     */
     @Override
     public void run(){
         while(true){

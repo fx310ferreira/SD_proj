@@ -5,7 +5,6 @@ import com.utils.Utils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.sql.Array;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -14,6 +13,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Set;
 
+/**
+ * Database class for handling interactions with the database, including initialization, indexing and searching operations.
+ */
 public class Database {
 
     private final String DB_URL;
@@ -23,6 +25,13 @@ public class Database {
     private final Connection connection;
     long startId;
 
+    /**
+     * Constructs a Database object with the given database ID.
+     * Initializes the database connection and starts the ID counter.
+     *
+     * @param db_id The identifier for the specific database instance.
+     * @throws SQLException If an SQL error occurs while connecting to the database.
+     */
     Database(String db_id) throws SQLException {
         this.DB_URL = Utils.readProperties(this, "DB_URL", "jdbc:postgresql://localhost:5433/", "database.properties");
         this.USER  = Utils.readProperties(this, "USER", "user", "database.properties");
@@ -36,6 +45,12 @@ public class Database {
         connection.setAutoCommit(false);
     }
 
+    /**
+     * Connects to the database or creates it if it does not exist.
+     *
+     * @return The connection to the database.
+     * @throws SQLException If an SQL exception occurs during database connection or creation.
+     */
     Connection dbConnect() throws SQLException {
         try {
             Connection conn = DriverManager.getConnection(this.DB_URL + this.DB_ID, this.USER, this.PASSWORD);
@@ -49,6 +64,12 @@ public class Database {
         }
     }
 
+    /**
+     * Retrieves the maximum ID from the messages table in the database.
+     *
+     * @param conn The connection to the database.
+     * @return The maximum ID from the messages table.
+     */
     private long getMaxId(Connection conn){
         String stmt = "SELECT MAX(id) FROM messages";
         try {
@@ -63,6 +84,12 @@ public class Database {
         return 0;
     }
 
+    /**
+     * Initializes the database by creating necessary tables and constraints.
+     *
+     * @param conn The connection to the database.
+     * @throws SQLException If an SQL exception occurs during the initialization process.
+     */
     private void initDB(Connection conn) throws SQLException {
         System.out.println("Initializing database");
         String statement = """
@@ -111,6 +138,12 @@ public class Database {
         conn.createStatement().execute(statement);
     }
 
+    /**
+     * Creates a new database if it does not already exist.
+     *
+     * @return The connection to the newly created database.
+     * @throws SQLException If an SQL exception occurs during the database creation process.
+     */
     private Connection createDB() throws SQLException {
         System.out.println("Attempting to create DB");
 
@@ -135,6 +168,15 @@ public class Database {
         return DriverManager.getConnection(this.DB_URL  + this.DB_ID, this.USER, this.PASSWORD);
     }
 
+    /**
+     * Indexes a URL with the given words and title.
+     *
+     * @param url   The URL to index.
+     * @param words The words associated with the URL..
+     * @param title The title of the URL.
+     * @return The ID of the indexed URL, or -1 if the URL could not be indexed.
+     * @throws SQLException If an SQL error occurs while indexing the URL.
+     */
     long indexUrl(String url, JSONArray words, String title) throws SQLException {
         long linkId = getUrlId(url);
         if (linkId == -1) {
@@ -172,6 +214,13 @@ public class Database {
         return linkId;
     }
 
+    /**
+     * Indexes a link-word relationship in the database.
+     *
+     * @param wordId The ID of the word to index.
+     * @param linkId The ID of the link to index.
+     * @return True if the indexing operation was successful, false otherwise.
+     */
     boolean indexWordLink(long wordId, long linkId) {
         String stmt = """
                 INSERT INTO words_links (links_id, words_id)
@@ -191,6 +240,14 @@ public class Database {
         return false;
     }
 
+    /**
+     * Adds a link-link relationship to the database.
+     *
+     * @param url  The URL of the first link.
+     * @param url1 The URL of the second link.
+     * @return True if the addition operation was successful, false otherwise.
+     * @throws SQLException If an SQL exception occurs during the operation.
+     */
     boolean addLink(String url, String url1) throws SQLException {
         long linkId = getUrlId(url);
         long linkId1 = getUrlId(url1);
@@ -217,6 +274,14 @@ public class Database {
         }
         return true;
     }
+
+    /**
+     * Retrieves the ID of a URL from the database.
+     *
+     * @param url The URL to retrieve the ID for.
+     * @return The ID of the URL, or -1 if the URL insertion failed.
+     * @throws SQLException If an SQL exception occurs during the operation.
+     */
     long getUrlId(String url) throws SQLException {
         String stmt = """
         INSERT INTO links (link)
@@ -240,6 +305,12 @@ public class Database {
         return id;
     }
 
+    /**
+     * Checks if a URL is already indexed in the database.
+     *
+     * @param url The URL to check for indexing status.
+     * @return True if the URL is indexed, false otherwise.
+     */
     boolean indexedUrl(String url){
         String stmt = "SELECT indexed FROM links WHERE link = ? AND indexed = TRUE;";
         try {
@@ -253,6 +324,12 @@ public class Database {
         return false;
     }
 
+    /**
+     * Retrieves the ID of a word from the database. Inserts the word if it doesn't exist.
+     *
+     * @param word The word to retrieve the ID for or insert into the database.
+     * @return The ID of the word, or -1 if the insertion failed.
+     */
     long getWordId(String word) {
         String stmt = """
         INSERT INTO words (word)
@@ -275,6 +352,13 @@ public class Database {
         return id;
     }
 
+    /**
+     * Searches for sites containing all specified words.
+     *
+     * @param words An array of words to search for.
+     * @param page  The page number for pagination.
+     * @return An array of Site objects matching the search criteria.
+     */
     Site[] search(String[] words, int page) {
         Set<String> wordsSet = Set.of(words);
         ArrayList<Site> sites = new ArrayList<>();
@@ -311,6 +395,12 @@ public class Database {
         return sites.toArray(sitesArray);
     }
 
+    /**
+     * Searches for a specific URL in the database.
+     *
+     * @param url The URL to search for.
+     * @return A Site object representing the URL if it is found, or null if the URL is not found.
+     */
     Site searchUrl(String url){
         String stmt = """
                 SELECT link, title FROM links WHERE link = ? AND indexed = TRUE;
@@ -329,6 +419,12 @@ public class Database {
         return null;
     }
 
+    /**
+     * Retrieves linked pages for a given URL from the database.
+     *
+     * @param url The URL for which linked pages are to be retrieved.
+     * @return An array of Site objects representing linked pages.
+     */
     Site[] linkedPages(String url){
         String stmt = """
                 select l.link, l.title, sum(ll.count)  as occurrences
@@ -353,6 +449,13 @@ public class Database {
         return sites.toArray(sitesArray);
     }
 
+    /**
+     * Inserts a message into the database.
+     *
+     * @param id      The ID of the message.
+     * @param message The message content to be inserted.
+     * @throws SQLException if an SQL exception occurs during the insertion process.
+     */
     void insertMessage(long id, String message) throws SQLException {
         String stmt = """
                 INSERT INTO messages (id, message)
@@ -369,6 +472,12 @@ public class Database {
         }
     }
 
+    /**
+     * Retrieves a message from the database based on its ID.
+     *
+     * @param id The ID of the message to retrieve.
+     * @return A JSONObject representing the retrieved message, or null if not found.
+     */
     JSONObject getMessage(long id) {
         String stmt = """
                 SELECT message FROM messages WHERE id = ?

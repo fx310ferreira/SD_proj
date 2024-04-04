@@ -13,6 +13,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Represents a Gateway that serves as an interface between clients and the search system.
+ * Implements the GatewayInt interface.
+ */
 public class Gateway extends UnicastRemoteObject implements GatewayInt {
 
     int PORT;
@@ -20,6 +24,11 @@ public class Gateway extends UnicastRemoteObject implements GatewayInt {
     Dispatcher dispatcher;
     private HashSet<ClientInt> clients;
 
+    /**
+     * Constructor for the Gateway class.
+     * 
+     * @throws RemoteException if there is an error creating the Gateway.
+     */
     protected Gateway() throws RemoteException {
         super();
         this.PORT = Integer.parseInt(Utils.readProperties(this, "PORT", "1099"));
@@ -28,7 +37,13 @@ public class Gateway extends UnicastRemoteObject implements GatewayInt {
         this.clients = new HashSet<>();
     }
 
-
+    /**
+     * Indexes a URL.
+     * 
+     * @param url the URL to be indexed.
+     * @return true if the URL was indexed, false otherwise.
+     * @throws RemoteException if there is an error indexing the URL.
+     */
     @Override
     public boolean indexURL(String url) throws RemoteException {
         if (dispatcher.indexedUrl(url)) {
@@ -40,6 +55,14 @@ public class Gateway extends UnicastRemoteObject implements GatewayInt {
         return true;
     }
 
+    /**
+     * Searches for a query.
+     * 
+     * @param query the query to search for.
+     * @param page the page number to search for.
+     * @return an array of Sites that match the query.
+     * @throws RemoteException if there is an error searching for the query.
+     */
     @Override
     public Site[] search(String query, int page) throws RemoteException {
         System.out.println("Searching for " + query);
@@ -48,16 +71,34 @@ public class Gateway extends UnicastRemoteObject implements GatewayInt {
         return response;
     }
 
+    /**
+     * Retrieves linked pages for a URL.
+     * 
+     * @param url the URL to retrieve linked pages for.
+     * @return an array of Sites that are linked to the URL.
+     * @throws RemoteException if there is an error retrieving linked pages.
+     */
     @Override
     public Site[] linkedPages(String url) throws RemoteException {
         return gatewayBarrel.linkedPages(url);
     }
 
+    /**
+     * Retrieves the response times for the Gateway's barrels.
+     *
+     * @return A Map containing the response times for the Gateway's barrels.
+     * @throws RemoteException if there is an error retrieving response times.
+     */
     @Override
     public Map<String, List<Double>> getResponseTimes() throws RemoteException {
         return gatewayBarrel.getResponseTimes();
     }
     
+    /**
+     * Adds a client to the Gateway.
+     * 
+     * @param client the client to add.
+     */
     @Override
     public void addClient(ClientInt client) {
         clients.add(client);
@@ -68,6 +109,9 @@ public class Gateway extends UnicastRemoteObject implements GatewayInt {
         }
     }
 
+    /**
+     * Sends updated statistics to all connected clients.
+     */
     public void sendUpdatedStatistics() {
         try {
             Set<String> activeBarrels = gatewayBarrel.getBarrels();
@@ -86,6 +130,11 @@ public class Gateway extends UnicastRemoteObject implements GatewayInt {
         }
     }
 
+    /**
+     * Main method for the Gateway class.
+     * 
+     * @param args Command line arguments.
+     */
     public static void main(String[] args) {
         try {
             Gateway gateway = new Gateway();
