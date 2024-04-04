@@ -7,5 +7,5 @@ import java.util.Map;
 import java.util.Set;
 
 public interface ClientInt extends Remote {
-    void updateStatistics(Set<String> activeBarrels, Map<String, List<Double>> responseTimes) throws RemoteException;
+    void updateStatistics(Set<String> activeBarrels, Map<String, List<Double>> responseTimes, String[] topSearches) throws RemoteException;
 }

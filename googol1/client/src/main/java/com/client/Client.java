@@ -139,10 +139,13 @@ public class Client extends UnicastRemoteObject implements ClientInt {
     }
 
     @Override
-    public void updateStatistics(Set<String> activeBarrels, Map<String, List<Double>> responseTimes) {
+    public void updateStatistics(Set<String> activeBarrels, Map<String, List<Double>> responseTimes, String[] topSearches){
         try {
             // Display active barrels
             System.out.println("--------------------------\nActive barrels:");
+            if(activeBarrels.isEmpty()){
+                System.out.println("No barrels recorded");
+            }
             int count = 0;
             for (String barrelId : activeBarrels) {
                 System.out.print(barrelId);
@@ -155,6 +158,9 @@ public class Client extends UnicastRemoteObject implements ClientInt {
 
             // Display average response time per barrel
             System.out.println("--------------------------\nAverage response time per barrel:");
+            if(responseTimes.isEmpty()){
+                System.out.println("No response time recorded");
+            }
             for (Map.Entry<String, List<Double>> entry : responseTimes.entrySet()) {
                 String barrelId = entry.getKey();
                 List<Double> times = entry.getValue();
@@ -171,6 +177,15 @@ public class Client extends UnicastRemoteObject implements ClientInt {
                 }
             }
             System.out.println("--------------------------");
+            if(topSearches.length > 0){
+                System.out.println("--------------------------\nTop searches:");
+                for (int i = 0; i < topSearches.length; i++) {
+                    System.out.println((i + 1) + ": " + topSearches[i]);
+                }
+            } else {
+                System.out.println("No searches recorded");
+            }
+            System.out.print("--------------------------\n->");
         } catch (Exception e) {
             System.out.println("Error fetching statistics: " + e.getMessage());
         }
