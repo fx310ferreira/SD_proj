@@ -19,6 +19,11 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.SQLException;
 
+/**
+ * Represents a Barrel node in the system.
+ * A Barrel is responsible for indexing URLs, performing searches, and managing linked pages.
+ * It communicates with the GatewayBarrel and other Barrels via RMI and multicast.
+ */
 public class Barrel extends UnicastRemoteObject implements BarrelInt {
     int PORT;
     String MULTICAST_ADDRESS;
@@ -29,7 +34,13 @@ public class Barrel extends UnicastRemoteObject implements BarrelInt {
     InetAddress mcastAddr;
     MessageQueue messageQueue;
 
-
+    /**
+     * Constructs a Barrel object with default properties.
+     * Initializes the Barrel's socket, database, multicast address, and message queue.
+     *
+     * @throws IOException   If an I/O error occurs while creating the multicast socket.
+     * @throws SQLException  If an SQL error occurs while initializing the database.
+     */
     Barrel() throws IOException, SQLException {
         super();
         this.PORT = Integer.parseInt(Utils.readProperties(this, "PORT", "4321"));
@@ -42,11 +53,26 @@ public class Barrel extends UnicastRemoteObject implements BarrelInt {
         this.messageQueue = new MessageQueue(this.database.startId);
     }
 
+    /**
+     * Checks if a URL has been indexed by the Barrel.
+     *
+     * @param url The URL to check.
+     * @return True if the URL is indexed, false otherwise.
+     * @throws RemoteException If a remote error occurs.
+     */
     @Override
     public boolean indexedUrl(String url) throws RemoteException {
         return database.indexedUrl(url);
     }
 
+    /**
+     * Searches for sites containing the specified words.
+     *
+     * @param words The words to search for.
+     * @param page  The page number of results to retrieve.
+     * @return An array of Site objects matching the search criteria.
+     * @throws RemoteException If a remote error occurs.
+     */
     @Override
     public Site[] search(String[] words, int page) throws RemoteException {
         if(words.length == 0){
@@ -58,14 +84,31 @@ public class Barrel extends UnicastRemoteObject implements BarrelInt {
         return database.search(words, page);
     }
 
+    /**
+     * Retrieves the linked pages for a given URL.
+     *
+     * @param url The URL for which linked pages are requested.
+     * @return An array of Site objects representing linked pages.
+     * @throws RemoteException If a remote error occurs.
+     */
     @Override
     public Site[] linkedPages(String url) throws RemoteException {
         return database.linkedPages(url);
     }
 
+    /**
+     * Notifies the Barrel that it is still alive.
+     *
+     * @throws RemoteException If a remote error occurs.
+     */
     @Override
     public void alive() throws RemoteException {}
 
+    /**
+     * Receives a multicast message from the network.
+     *
+     * @return A JSONObject containing the received message.
+     */
     private JSONObject receiveMltcMsg() {
         try {
             byte[] buffer = new byte[65536];
@@ -85,6 +128,14 @@ public class Barrel extends UnicastRemoteObject implements BarrelInt {
         return null;
     }
 
+    /**
+     * The main method of the Barrel.
+     * Initializes the Barrel and connects to the GatewayBarrel.
+     * Starts the Recuperator and MessageProcessor threads.
+     * Receives multicast messages and adds them to the message queue.
+     *
+     * @param args The command line arguments.
+     */
     public static void main(String[] args){
         Barrel barrel = null;
 

@@ -15,17 +15,35 @@ import com.common.GatewayInt;
 import com.common.Site;
 import com.utils.Utils;
 
+/**
+ * Represents a client that interacts with the gateway to perform search and index operations.
+ * Implements the ClientInt interface.
+ */
 public class Client extends UnicastRemoteObject implements ClientInt {
 
     String RMI_ADDRESS;
     GatewayInt server;
 
+    /**
+     * Constructs a client and connects to the gateway server.
+     * 
+     * @throws MalformedURLException  if there is an error with the RMI address.
+     * @throws NotBoundException      if the gateway is not bound in the RMI registry.
+     * @throws RemoteException        if there is a communication error with the gateway.
+     */
     public Client() throws MalformedURLException, NotBoundException, RemoteException {
         this.RMI_ADDRESS = Utils.readProperties(this, "RMI_ADDRESS", "localhost");
         this.server = (GatewayInt) Naming.lookup("rmi://" + this.RMI_ADDRESS + "/gateway");
         server.addClient(this);
     }
 
+    /**
+     * Displays the linked pages for a given site.
+     * 
+     * @param url     the array of sites to display linked pages for.
+     * @param scanner the scanner object to read user input.
+     * @throws RemoteException if there is a communication error with the server.
+     */
     public void linkedPages(Site[] url, Scanner scanner) throws RemoteException {
         while (true)
             try {
@@ -55,6 +73,13 @@ public class Client extends UnicastRemoteObject implements ClientInt {
 
     }
 
+    /**
+     * Displays the search results and allows the user to navigate through the pages.
+     * 
+     * @param message the search query.
+     * @param scanner the scanner object to read user input.
+     * @throws RemoteException if there is a communication error with the server.
+     */
     public void searchMenu(String message, Scanner scanner) throws RemoteException {
         int page = 0;
         String comand;
@@ -138,6 +163,13 @@ public class Client extends UnicastRemoteObject implements ClientInt {
         }
     }
 
+    /**
+     * Updates statistics displayed to the client.
+     * 
+     * @param activeBarrels  the set of active barrels.
+     * @param responseTimes  the map of response times for each barrel.
+     * @throws RemoteException if there is an error communicating with the server.
+     */
     @Override
     public void updateStatistics(Set<String> activeBarrels, Map<String, List<Double>> responseTimes, String[] topSearches){
         try {
@@ -191,6 +223,11 @@ public class Client extends UnicastRemoteObject implements ClientInt {
         }
     }
 
+    /**
+     * Main method that runs the client application.
+     * 
+     * @param args Command line arguments.
+     */
     public static void main(String[] args) {
 
         try {

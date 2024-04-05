@@ -18,6 +18,11 @@ import com.common.DispatcherInt;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+/**
+ * Represents a Downloader node in the system.
+ * A Downloader is responsible for downloading web pages and extracting their content.
+ * It communicates with the Dispatcher via RMI and multicast.
+ */
 public class Downloader {
     String RMI_ADDRESS;
     int PORT;
@@ -26,6 +31,13 @@ public class Downloader {
     MulticastSocket socket;
     InetAddress mcastGroup;
 
+    /**
+     * Constructs a Downloader object with default properties.
+     * Initializes the Downloader's socket, multicast address, and connects to the Dispatcher via RMI.
+     *
+     * @throws IOException        If an I/O error occurs while creating the multicast socket.
+     * @throws NotBoundException  If the Dispatcher RMI lookup fails.
+     */
     public Downloader() throws IOException, NotBoundException {
         this.RMI_ADDRESS = Utils.readProperties(this, "RMI_ADDRESS", "localhost");
         this.PORT = Integer.parseInt(Utils.readProperties(this, "PORT", "4321"));
@@ -35,6 +47,12 @@ public class Downloader {
         this.mcastGroup = InetAddress.getByName(this.MULTICAST_ADDRESS);
     }
 
+    /**
+     * Downloads a web page, extracts its content, and sends it to the Dispatcher.
+     *
+     * @param url The URL of the web page to download.
+     * @throws RuntimeException If an error occurs while downloading the web page.
+     */
     void download(String url) throws RuntimeException {
         try {
             Document doc = Jsoup.connect(url).get();
@@ -71,7 +89,7 @@ public class Downloader {
                 content.put("id", this.dispatcher.getId());
                 multicastMsg(content);
                 if (dispatcher.indexedUrl(link)) {
-//                    System.out.println("Link already indexed: " + link);
+                    // System.out.println("Link already indexed: " + link);
                 } else {
                     this.dispatcher.push(link);
                 }
@@ -87,6 +105,11 @@ public class Downloader {
         }
     }
 
+    /**
+     * Sends a multicast message to the network.
+     *
+     * @param content The content of the message to send.
+     */
     void multicastMsg(JSONObject content) {
         try {
             String msg = content.toString();
@@ -98,6 +121,12 @@ public class Downloader {
         }
     }
 
+    /**
+     * The main method of the Downloader.
+     * Continuously downloads web pages from the Dispatcher.
+     *
+     * @param args The command-line arguments.
+     */
     public static void main(String[] args) {
         try {
             Downloader downloader = new Downloader();

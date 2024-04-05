@@ -7,12 +7,24 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 
+/**
+ * Represents a Recuperator thread in the system.
+ * A Recuperator is responsible for periodically checking for missing messages in the message queue and resending them over multicast if necessary.
+ */
 public class Recuperator extends Thread{
     private final MessageQueue messageQueue;
     private final MulticastSocket socket;
     private final InetAddress mcastGroup;
     private final int PORT;
 
+    /**
+     * Constructs a Recuperator object with the given message queue, multicast socket, multicast group, and port.
+     *
+     * @param messageQueue The message queue to check for missing messages.
+     * @param socket       The multicast socket used for sending messages.
+     * @param mcastGroup   The multicast group to send messages to.
+     * @param PORT         The port number used for multicast communication.
+     */
     public Recuperator(MessageQueue messageQueue, MulticastSocket socket, InetAddress mcastGroup, int PORT){
         this.messageQueue = messageQueue;
         this.socket = socket;
@@ -20,6 +32,9 @@ public class Recuperator extends Thread{
         this.PORT = PORT;
     }
 
+    /**
+     * Periodically checks for missing messages in the message queue and resends them over multicast if necessary.
+     */
     @Override
     public void run(){
         while(true){
