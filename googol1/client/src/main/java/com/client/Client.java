@@ -234,6 +234,7 @@ public class Client extends UnicastRemoteObject implements ClientInt {
                         break;
                     case "3":
                         System.out.println("Goodbye");
+                        System.exit(0);
                         break label;
                     default:
                         System.out.println("Invalid option");
@@ -242,7 +243,8 @@ public class Client extends UnicastRemoteObject implements ClientInt {
             }
             scanner.close();
         } catch (RemoteException | NotBoundException | MalformedURLException | RuntimeException e) {
-            System.out.println("Gateway is down please try again later: " + e.getMessage());
+            System.err.println("Gateway is down please try again later: " + e.getMessage());
+            System.exit(1);
         }
     }
 }
