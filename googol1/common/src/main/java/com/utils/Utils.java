@@ -16,9 +16,9 @@ public class Utils {
      * @param defaultVal The default value to return if the property is not found.
      * @return           The value of the property if found, otherwise the default value.
      */
-    public static  String readProperties(Object obj, String filed, String defaultVal){
+    public static  String readProperties(Object obj, String field, String defaultVal){
         final String propertiesFile = "config.properties";
-        return readProperties(obj, filed, defaultVal, propertiesFile);
+        return readProperties(obj, field, defaultVal, propertiesFile);
     }
 
     /**
@@ -30,7 +30,7 @@ public class Utils {
      * @param propertiesFile The name of the properties file to read from.
      * @return               The value of the property if found, otherwise the default value.
      */
-    public static  String readProperties(Object obj, String filed, String defaultVal, String propertiesFile) {
+    public static  String readProperties(Object obj, String field, String defaultVal, String propertiesFile) {
         try (InputStream input = obj.getClass().getClassLoader().getResourceAsStream(propertiesFile)) {
             if (input == null){
                 System.out.println("Unable to find " + propertiesFile + " defaulting to: " + defaultVal);
@@ -40,9 +40,9 @@ public class Utils {
             Properties prop = new Properties();
             prop.load(input);
 
-            if (prop.getProperty(filed) != null) {
-                System.out.println("Using address: " + prop.getProperty(filed));
-                return prop.getProperty(filed);
+            if (prop.getProperty(field) != null) {
+                System.out.println("Using address: " + prop.getProperty(field));
+                return prop.getProperty(field);
             }else {
                 System.out.println("Unable to find property defaulting to: " + defaultVal);
                 return defaultVal;

@@ -168,7 +168,6 @@ public class Client extends UnicastRemoteObject implements ClientInt {
      * 
      * @param activeBarrels  the set of active barrels.
      * @param responseTimes  the map of response times for each barrel.
-     * @throws RemoteException if there is an error communicating with the server.
      */
     @Override
     public void updateStatistics(Set<String> activeBarrels, Map<String, List<Double>> responseTimes, String[] topSearches){
