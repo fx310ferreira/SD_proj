@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"}];updateSearchResults();
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.barrel"},{"l":"com.client"},{"l":"com.common"},{"l":"com.downloader"},{"l":"com.gateway"},{"l":"com.utils"}];updateSearchResults();
