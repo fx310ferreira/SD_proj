@@ -17,7 +17,6 @@ import com.utils.Utils;
 
 /**
  * Represents a client that interacts with the gateway to perform search and index operations.
- * Implements the ClientInt interface.
  */
 public class Client extends UnicastRemoteObject implements ClientInt {
 
@@ -38,7 +37,7 @@ public class Client extends UnicastRemoteObject implements ClientInt {
     }
 
     /**
-     * Displays the linked pages for a given site.
+     * Displays the webpages that link to a given url.
      * 
      * @param url     the array of sites to display linked pages for.
      * @param scanner the scanner object to read user input.
@@ -74,7 +73,7 @@ public class Client extends UnicastRemoteObject implements ClientInt {
     }
 
     /**
-     * Displays the search results and allows the user to navigate through the pages.
+     * Displays the search results and allows the user to navigate through them.
      * 
      * @param message the search query.
      * @param scanner the scanner object to read user input.
@@ -164,10 +163,11 @@ public class Client extends UnicastRemoteObject implements ClientInt {
     }
 
     /**
-     * Updates statistics displayed to the client.
-     * 
+     * RMI callback method that updates the client with the statistics every time there is update.
+     *
      * @param activeBarrels  the set of active barrels.
      * @param responseTimes  the map of response times for each barrel.
+     * @param topSearches    the array of top searches.
      */
     @Override
     public void updateStatistics(Set<String> activeBarrels, Map<String, List<Double>> responseTimes, String[] topSearches){

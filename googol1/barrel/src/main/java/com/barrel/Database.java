@@ -30,7 +30,7 @@ public class Database {
      * Initializes the database connection and starts the ID counter.
      *
      * @param db_id The identifier for the specific database instance.
-     * @throws SQLException If an SQL error occurs while connecting to the database.
+     * @throws SQLException If an SQL error occurs while connecting or creating to the database.
      */
     Database(String db_id) throws SQLException {
         this.DB_URL = Utils.readProperties(this, "DB_URL", "jdbc:postgresql://localhost:5433/", "database.properties");
