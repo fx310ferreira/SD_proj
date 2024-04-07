@@ -42,3 +42,11 @@ psql -h localhost -p 5433 -U user
 
 ```
 
+## Database Structure
+
+![[University/LEI/Year_3/SD/SD_proj/ER.png]]
+
+## Rmi and Multicast Relation Diagram
+
+![[diagram.png]]
+At any time, as long as the server (gateway) is running, any number of clients, barrels and downloaders can be created. All the necessary configurable settings are accessible in the respective resources.properties.
