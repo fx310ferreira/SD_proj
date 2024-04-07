@@ -1,3 +1,8 @@
+/**
+ * @author Diogo Filipe Serra e Silva
+ * @author Frederico Xavier de Araújo Ferreira
+ */
+
 package com.common;
 
 import java.rmi.Remote;
