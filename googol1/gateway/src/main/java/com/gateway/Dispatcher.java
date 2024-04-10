@@ -1,9 +1,12 @@
+/**
+ * @author Diogo Filipe Serra e Silva
+ * @author Frederico Xavier de Araújo Ferreira
+ */
+
 package com.gateway;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.rmi.server.UnicastRemoteObject;
 import java.rmi.RemoteException;
 import java.util.concurrent.ConcurrentSkipListSet;

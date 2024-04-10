@@ -1,3 +1,8 @@
+/**
+ * @author Diogo Filipe Serra e Silva
+ * @author Frederico Xavier de Araújo Ferreira
+ */
+
 package com.gateway;
 import java.net.MalformedURLException;
 import java.rmi.RemoteException;

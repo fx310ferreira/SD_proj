@@ -1,3 +1,7 @@
+/**
+ * @author Frederico Xavier de Araújo Ferreira
+ */
+
 package com.common;
 
 import java.io.Serializable;
