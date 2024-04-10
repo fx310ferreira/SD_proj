@@ -15,3 +15,9 @@ dependencies {
 repositories {
     mavenCentral()
 }
+
+tasks.withType<Jar> {
+    manifest {
+        attributes["Main-Class"] = application.mainClass
+    }
+}

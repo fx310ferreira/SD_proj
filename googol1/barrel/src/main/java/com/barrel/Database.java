@@ -427,11 +427,10 @@ public class Database {
      */
     Site[] linkedPages(String url){
         String stmt = """
-                select l.link, l.title, sum(ll.count)  as occurrences
-                FROM links_links as ll
-                    JOIN links as l ON ll.links_id1 = l.id
-                WHERE l.link = ?
-                group by l.id , l.title
+                select distinct l.link, l.title
+                    FROM links_links as ll
+                    JOIN links as l ON ll.links_id = l.id
+                where ll.links_id1 = (select l1.id from links as l1 where l1.link=?)
                 """;
         ArrayList<Site> sites = new ArrayList<>();
         try {

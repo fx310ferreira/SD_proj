@@ -10,3 +10,8 @@ dependencies {
     implementation(project(":common"))
 }
 
+tasks.withType<Jar> {
+    manifest {
+        attributes["Main-Class"] = application.mainClass
+    }
+}
