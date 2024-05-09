@@ -5,11 +5,14 @@
 
 package com.gateway;
 
-import java.util.Set;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.rmi.server.UnicastRemoteObject;
 import java.rmi.RemoteException;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import com.common.DispatcherInt;
 
@@ -19,7 +22,7 @@ import com.common.DispatcherInt;
  */
 public class Dispatcher extends UnicastRemoteObject implements DispatcherInt {
     ConcurrentLinkedDeque<String> url_queue;
-    Set<String> processing;
+    Map<String, Long> processing;
     GatewayBarrel gatewayBarrel;
     long id;
 
@@ -31,9 +34,19 @@ public class Dispatcher extends UnicastRemoteObject implements DispatcherInt {
      */
     public Dispatcher(GatewayBarrel gatewayBarrel) throws RemoteException {
         this.url_queue = new ConcurrentLinkedDeque<>();
-        this.processing = new ConcurrentSkipListSet<>();
+        this.processing = new ConcurrentHashMap<>();
         this.gatewayBarrel = gatewayBarrel;
         this.id = 1;
+
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.scheduleAtFixedRate(() -> {
+            for (String url : processing.keySet())
+                if (System.currentTimeMillis() - processing.get(url) > 5000){
+                    System.out.println("Repushing: " + url);
+                    pushFront(url);
+                    processing.remove(url);
+                }
+        }, 0, 5000, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -78,7 +91,7 @@ public class Dispatcher extends UnicastRemoteObject implements DispatcherInt {
                 System.out.println("interruptedException caught");
             }
         String url = url_queue.poll();
-        processing.add(url);
+        processing.put(url,System.currentTimeMillis());
         System.out.println("Processing: " + processing);
         return url;
     }
@@ -114,7 +127,7 @@ public class Dispatcher extends UnicastRemoteObject implements DispatcherInt {
      */
     @Override
     public synchronized boolean indexedUrl(String url) throws RemoteException {
-        return (processing.contains(url) || url_queue.contains(url) || gatewayBarrel.indexedUrl(url));
+        return (processing.containsKey(url) || url_queue.contains(url) || gatewayBarrel.indexedUrl(url));
     }
 
     /**

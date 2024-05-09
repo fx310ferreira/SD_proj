@@ -20,4 +20,5 @@ tasks.withType<Jar> {
     manifest {
         attributes["Main-Class"] = application.mainClass
     }
+    from(project(":common").sourceSets.main.get().output)
 }
