@@ -133,30 +133,6 @@ questions.forEach(question => {
 
 // ------------------------------------------------------
 
-document.querySelector('.bx-search').addEventListener('click', function () {
-    const searchQuery = document.querySelector('.search-input').value;
-
-    // Perform the search using the query (...)
-
-    // Hide the landing page and show the search results page
-    document.querySelector('.landing-page').classList.remove('active');
-    document.querySelector('.searches-page').classList.add('active');
-});
-
-document.querySelector('.search-input').addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') {
-        const searchQuery = document.querySelector('.search-input').value;
-
-        // Perform the search using the query
-
-        // Hide the landing page and show the search results page
-        document.querySelector('.landing-page').classList.remove('active');
-        document.querySelector('.searches-page').classList.add('active');
-    }
-});
-
-// ------------------------------------------------------
-
 const searchResultsData = [
     { title: 'Search Result 1', description: 'Search Result 1 Description' },
     { title: 'Search Result 2', description: 'Search Result 2 Description' },

@@ -18,4 +18,17 @@ public class Gateway {
             e.printStackTrace();
         }
     }
+
+    public String query(String query) {
+        query = query.strip();
+        if ((query.startsWith("http://") || query.startsWith("https://"))){
+            try {
+                server.indexURL(query);
+                return "redirect:"+query;
+            } catch (Exception e) {
+                System.err.println("Error indexing");
+            }
+        }
+        return "searches";
+    }
 }

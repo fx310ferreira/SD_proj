@@ -8,6 +8,7 @@ import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -24,15 +25,19 @@ public class WebController {
 
 //    @GetMapping("/")
 //    public String redirect() {
-//        return "redirect:/greeting";
+//        return "redirect:/";
 //    }
 
     @GetMapping
-    public String googol(@RequestParam(name="name", required=false) String name, Model model) {
-        model.addAttribute("name", name);
-        model.addAttribute("othername", "SD");
+    public String googol(Model model) {
         System.out.println(gateway);
-        return "index";
+        return "landing";
+    }
+
+    @GetMapping("/search")
+    public String search(@RequestParam(name = "q") String search, Model model) {
+        model.addAttribute("query", search);
+        return gateway.query(search);
     }
 
 }

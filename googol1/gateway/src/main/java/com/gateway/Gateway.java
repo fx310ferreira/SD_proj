@@ -54,6 +54,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInt {
      */
     @Override
     public boolean indexURL(String url) throws RemoteException {
+        System.out.println("Trying to index url: " + url);
         if (dispatcher.indexedUrl(url)) {
             System.out.println("Already indexed: " + url);
             return false;
