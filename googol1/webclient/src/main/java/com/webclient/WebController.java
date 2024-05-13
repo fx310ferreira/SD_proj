@@ -37,7 +37,7 @@ public class WebController {
     @GetMapping("/search")
     public String search(@RequestParam(name = "q") String search, Model model) {
         model.addAttribute("query", search);
-        return gateway.query(search);
+        return gateway.query(search, model);
     }
 
 }
