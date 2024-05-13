@@ -12,6 +12,7 @@ import java.io.Serializable;
 public class Site implements Serializable {
     String url;
     String title;
+    String description;
     int occurrences;
     String[] pagesThatContain;
 
@@ -25,6 +26,7 @@ public class Site implements Serializable {
         this.url = url;
         this.title = title;
         this.occurrences = 0;
+        this.description = "THIS IS A DEFAULT DESCRIPTION";
     }
 
     /**
@@ -38,6 +40,7 @@ public class Site implements Serializable {
         this.url = url;
         this.title = title;
         this.occurrences = occurrences;
+        this.description = "THIS IS A DEFAULT DESCRIPTION";
     }
 
     /**
@@ -58,9 +61,17 @@ public class Site implements Serializable {
      *
      * @return The URL of the web page.
      */
-    public String getLink(){
+    public String getUrl(){
         return url;
 
+    }
+
+    public String getTitle(){
+        return title;
+    }
+
+    public String getDescription(){
+        return description;
     }
 
     /**

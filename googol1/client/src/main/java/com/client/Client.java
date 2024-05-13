@@ -57,7 +57,7 @@ public class Client extends UnicastRemoteObject implements ClientInt {
                     System.out.println("Invalid number");
                     return;
                 }
-                Site[] sites = server.linkedPages(url[index - 1].getLink());
+                Site[] sites = server.linkedPages(url[index - 1].getUrl());
                 if (sites.length == 0) {
                     System.out.println("No linked pages found");
                     return;

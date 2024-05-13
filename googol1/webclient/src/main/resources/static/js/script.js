@@ -185,17 +185,17 @@ function createSearchResultItem(result) {
     return li;
 }
 
-function renderSearchResults() {
-    const searchResultsElement = document.querySelector('.search-results');
-    searchResultsElement.innerHTML = '';
-
-    searchResultsData.forEach(result => {
-        const item = createSearchResultItem(result);
-        searchResultsElement.appendChild(item);
-    });
-}
-
-renderSearchResults();
+//function renderSearchResults() {
+//    const searchResultsElement = document.querySelector('.search-results');
+//    searchResultsElement.innerHTML = '';
+//
+//    searchResultsData.forEach(result => {
+//        const item = createSearchResultItem(result);
+//        searchResultsElement.appendChild(item);
+//    });
+//}
+//
+//renderSearchResults();
 
 // ------------------------------------------------------
 
