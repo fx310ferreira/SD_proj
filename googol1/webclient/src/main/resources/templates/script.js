@@ -56,8 +56,7 @@ hamburger.addEventListener("click", function () {
         rightArrow.style.visibility = 'hidden';
     } else {
         setTimeout(() => {
-            leftArrow.style.visibility = 'visible';
-            rightArrow.style.visibility = 'visible';
+            updateContent();
         }, 600);
     }
 });
@@ -130,6 +129,30 @@ questions.forEach(question => {
         }
     })
 })
+
+// ------------------------------------------------------
+
+document.querySelector('.bx-search').addEventListener('click', function () {
+    const searchQuery = document.querySelector('.search-input').value;
+
+    // Perform the search using the query (...)
+
+    // Hide the landing page and show the search results page
+    document.querySelector('.landing-page').classList.remove('active');
+    document.querySelector('.searches-page').classList.add('active');
+});
+
+document.querySelector('.search-input').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        const searchQuery = document.querySelector('.search-input').value;
+
+        // Perform the search using the query
+
+        // Hide the landing page and show the search results page
+        document.querySelector('.landing-page').classList.remove('active');
+        document.querySelector('.searches-page').classList.add('active');
+    }
+});
 
 // ------------------------------------------------------
 
@@ -211,5 +234,5 @@ function updateContent() {
     } else {
         leftArrow.style.visibility = 'hidden';
     }
-    rightArrow.style.display = 'block';
+    rightArrow.style.visibility = 'visible';
 }

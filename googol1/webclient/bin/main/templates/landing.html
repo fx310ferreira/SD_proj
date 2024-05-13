@@ -41,21 +41,12 @@
         </div>
         <div class="landing-page active">
             <h1 class="title">GOOGOL</h1>
-            <div class="search-bar">
-                <input type="text" class="search-input" placeholder="Search something">
-                <i class='bx bx-search'></i>
-            </div>
-        </div>
-        <div class="searches-page">
-            <div class="search-bar">
-                <input type="text" class="search-input" placeholder="Search something">
-                <i class='bx bx-search'></i>
-            </div>
-            <ul class="search-results"></ul>
-            <div class="pagination">
-                <i id="left-arrow" class="bx bx-chevron-left"></i>
-                <i id="right-arrow" class="bx bx-chevron-right"></i>
-            </div>
+            <form th:action="@{/search}" method="get" class="search-bar">
+                <input type="text" class="search-input" placeholder="Search something" th:name="q">
+                <button>
+                    <i class='bx bx-search' type="submit"></i>
+                </button>
+            </form>
         </div>
         <div class="background">
             <div class="stars-group"></div>
