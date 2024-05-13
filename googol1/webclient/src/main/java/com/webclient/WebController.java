@@ -22,17 +22,17 @@ public class WebController {
         return new Gateway();
     }
 
-    @GetMapping("/")
-    public String redirect() {
-        return "redirect:/greeting";
-    }
+//    @GetMapping("/")
+//    public String redirect() {
+//        return "redirect:/greeting";
+//    }
 
-    @GetMapping("/greeting")
-    public String greeting(@RequestParam(name="name", required=false, defaultValue="World") String name, Model model) {
+    @GetMapping
+    public String googol(@RequestParam(name="name", required=false) String name, Model model) {
         model.addAttribute("name", name);
         model.addAttribute("othername", "SD");
         System.out.println(gateway);
-        return "greeting";
+        return "index";
     }
 
 }

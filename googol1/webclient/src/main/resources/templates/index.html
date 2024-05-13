@@ -1,11 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GOOGOL</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../static/css/style.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <script defer th:src="@{js/script.js}" type="text/javascript"></script>
+    <script defer th:src="@{js/stars.js}" type="text/javascript"></script>
+    <link th:href="@{/css/style.css}" rel="stylesheet" />
 </head>
 <body>
     <div class="container">
@@ -52,7 +55,5 @@
             <div class="aurora-gradient"></div>
         </div>
     </div>
-    <script src="script.js"></script>
-    <script src="stars.js"></script>
 </body>
 </html>
