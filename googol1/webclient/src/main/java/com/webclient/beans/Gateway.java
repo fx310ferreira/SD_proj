@@ -40,10 +40,7 @@ public class Gateway {
         try {
             Site[] sites = server.search(query, 0);
             if (sites.length == 0) {
-                System.out.println("No results found");
-            }
-            for (Site site : sites) {
-                System.out.println(site);
+                model.addAttribute("resultNotFound", true);
             }
             List<Site> siteList = new ArrayList<>();
             siteList.addAll(List.of(sites));

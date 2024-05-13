@@ -52,6 +52,8 @@
                     <p th:text="${site.description}"></p>
                 </li>
             </ul>
+            <!--add styles for this-->
+            <p th:if="${resultNotFound}">No results found</p>
             <div class="pagination">
                 <i id="left-arrow" class="bx bx-chevron-left"></i>
                 <i id="right-arrow" class="bx bx-chevron-right"></i>

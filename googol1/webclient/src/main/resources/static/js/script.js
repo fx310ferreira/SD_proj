@@ -45,24 +45,6 @@ setInterval(updateGradient, 2500);
 
 // ------------------------------------------------------
 
-hamburger.addEventListener("click", function () {
-    this.classList.toggle("active");
-    sidebar.classList.toggle("active");
-    landingPage.classList.toggle("shift");
-    searchesPage.classList.toggle("shift");
-
-    if (this.classList.contains("active")) {
-        leftArrow.style.visibility = 'hidden';
-        rightArrow.style.visibility = 'hidden';
-    } else {
-        setTimeout(() => {
-            updateContent();
-        }, 600);
-    }
-});
-
-// ------------------------------------------------------
-
 const faqData = [
     { question: 'Google', answer: 'https://www.google.com' },
     { question: 'Youtube', answer: 'https://www.youtube.com' },
@@ -132,30 +114,6 @@ questions.forEach(question => {
 
 // ------------------------------------------------------
 
-document.querySelector('.bx-search').addEventListener('click', function () {
-    const searchQuery = document.querySelector('.search-input').value;
-
-    // Perform the search using the query (...)
-
-    // Hide the landing page and show the search results page
-    document.querySelector('.landing-page').classList.remove('active');
-    document.querySelector('.searches-page').classList.add('active');
-});
-
-document.querySelector('.search-input').addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') {
-        const searchQuery = document.querySelector('.search-input').value;
-
-        // Perform the search using the query
-
-        // Hide the landing page and show the search results page
-        document.querySelector('.landing-page').classList.remove('active');
-        document.querySelector('.searches-page').classList.add('active');
-    }
-});
-
-// ------------------------------------------------------
-
 const searchResultsData = [
     { title: 'Search Result 1', description: 'Search Result 1 Description' },
     { title: 'Search Result 2', description: 'Search Result 2 Description' },
@@ -184,18 +142,6 @@ function createSearchResultItem(result) {
 
     return li;
 }
-
-//function renderSearchResults() {
-//    const searchResultsElement = document.querySelector('.search-results');
-//    searchResultsElement.innerHTML = '';
-//
-//    searchResultsData.forEach(result => {
-//        const item = createSearchResultItem(result);
-//        searchResultsElement.appendChild(item);
-//    });
-//}
-//
-//renderSearchResults();
 
 // ------------------------------------------------------
 
