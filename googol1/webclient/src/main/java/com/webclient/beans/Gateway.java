@@ -22,15 +22,15 @@ public class Gateway extends UnicastRemoteObject implements ClientInt {
     private String RMI_ADDRESS;
     private GatewayInt server;
     private final SimpMessagingTemplate template;
+    ArrayList<String> topSearches = new ArrayList<>();
 
     public Gateway(SimpMessagingTemplate template) throws RemoteException {
         super();
         this.template = template;
         this.RMI_ADDRESS = Utils.readProperties(this, "RMI_ADDRESS", "localhost");
         try {
-            this.server  = (GatewayInt) Naming.lookup("rmi://" + this.RMI_ADDRESS +"/gateway");
+            this.server  = (GatewayInt) Naming.lookup("rmi://" + this.RMI_ADDRESS + "/gateway");
             this.server.addClient(this);
-            template.convertAndSend("/topic/activeBarrels", new Message("testt"));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -42,6 +42,7 @@ public class Gateway extends UnicastRemoteObject implements ClientInt {
         json.put("activeBarrels", activeBarrels);
         json.put("responseTimes", responseTimes);
         json.put("topSearches", topSearches);
+        this.topSearches = new ArrayList<>(List.of(topSearches));
         template.convertAndSend("/topic/messages", new Message(json.toString()));
     }
 
@@ -64,10 +65,6 @@ public class Gateway extends UnicastRemoteObject implements ClientInt {
                 site.setPagesThatContain(server.linkedPages(site.getUrl()));
             }
 
-            for (Site site : sites) {
-                System.out.println(site.getPagesThatContain());
-            }
-
             if (sites.length == 0) {
                 model.addAttribute("resultNotFound", true);
             }
@@ -85,6 +82,7 @@ public class Gateway extends UnicastRemoteObject implements ClientInt {
             List<Site> siteList = new ArrayList<>();
             siteList.addAll(List.of(sites));
             model.addAttribute("sites", siteList);
+            model.addAttribute("topSearches", topSearches);
         } catch (RemoteException e) {
             System.out.println("Error searching");
         }

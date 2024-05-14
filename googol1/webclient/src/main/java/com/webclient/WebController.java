@@ -20,12 +20,12 @@ public class WebController {
     @Autowired
     private SimpMessagingTemplate template;
 
-    @Resource(name = "sessionScopedGateway")
+    @Resource(name = "appScopedGateway")
     private Gateway gateway;
 
     @Bean
-    @Scope(value = WebApplicationContext.SCOPE_SESSION, proxyMode = ScopedProxyMode.TARGET_CLASS)
-    public Gateway sessionScopedGateway() {
+    @Scope(value = WebApplicationContext.SCOPE_APPLICATION, proxyMode = ScopedProxyMode.TARGET_CLASS)
+    public Gateway appScopedGateway() {
         try {
             return new Gateway(template);
         } catch (RemoteException e) {
@@ -34,14 +34,8 @@ public class WebController {
         return null;
     }
 
-//    @GetMapping("/")
-//    public String redirect() {
-//        return "redirect:/";
-//    }
-
     @GetMapping
     public String googol(Model model) {
-        System.out.println(gateway);
         if (gateway == null) {
             //todo redirect to error page
             return "redirect:/";

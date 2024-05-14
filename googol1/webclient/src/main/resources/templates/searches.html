@@ -35,9 +35,12 @@
                     <div class="response-time">90 ms</div>
                 </div>
             </div> -->
-            <div class="faq"> 
+            <div class="faq">
+                <h1>Top 10 Searches</h1>
                 <div class="top-searches">
-                    <h1>Top 10 Searches</h1>
+                    <div th:each="search : ${topSearches}" class="container-q">
+                        <div th:text="${search}" class="question"></div>
+                    </div>
                 </div>
             </div>
         </div>

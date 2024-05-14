@@ -10,7 +10,6 @@ function connect() {
         stompClient.subscribe('/topic/messages', function (message) {
             const result = JSON.parse(JSON.parse(message.body).content);
             displayTop(result.topSearches);
-            console.log(result);
         });
     });
 }
