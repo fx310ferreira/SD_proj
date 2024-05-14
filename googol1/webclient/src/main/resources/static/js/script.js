@@ -48,62 +48,20 @@ setInterval(updateGradient, 2500);
 hamburger.addEventListener("click", function () {
     this.classList.toggle("active");
     sidebar.classList.toggle("active");
-    landingPage.classList.toggle("shift");
-    searchesPage.classList.toggle("shift");
+    landingPage?.classList.toggle("shift");
+    searchesPage?.classList.toggle("shift");
 
-    if (this.classList.contains("active")) {
-        leftArrow.style.visibility = 'hidden';
-        rightArrow.style.visibility = 'hidden';
-    } else {
-        setTimeout(() => {
-            updateContent();
-        }, 600);
-    }
+//    if (this.classList.contains("active")) {
+//        leftArrow.style.visibility = 'hidden';
+//        rightArrow.style.visibility = 'hidden';
+//    } else {
+//        setTimeout(() => {
+//            updateContent();
+//        }, 600);
+//    }
 });
 
 // ------------------------------------------------------
-
-const faqData = [
-    { question: 'Google', answer: 'https://www.google.com' },
-    { question: 'Youtube', answer: 'https://www.youtube.com' },
-    { question: 'Facebook', answer: 'https://www.facebook.com' },
-    { question: 'Instagram', answer: 'https://www.instagram.com' },
-    { question: 'Tik Tok', answer: 'https://www.tiktok.com' },
-    { question: 'Amazon', answer: 'https://www.amazon.com' }
-    // { question: 'Wikipedia', answer: 'https://www.wikipedia.org' },
-    // { question: '-hub', answer: "You don't wanna know" },
-    // { question: 'Open AI', answer: 'https://www.openai.com' },
-    // { question: 'Reddit', answer: 'https://www.reddit.com' }
-];
-
-function createFaqItem(data) {
-    const container = document.createElement('div');
-    container.classList.add('container-q');
-
-    const question = document.createElement('div');
-    question.classList.add('question');
-    question.textContent = data.question;
-
-    const answer = document.createElement('div');
-    answer.classList.add('answer');
-    answer.textContent = data.answer;
-
-    container.appendChild(question);
-    container.appendChild(answer);
-
-    return container;
-}
-
-function renderFaqResults() {
-    const topSearchesElement = document.querySelector('.top-searches');
-
-    faqData.forEach(item => {
-        const faqItem = createFaqItem(item);
-        topSearchesElement.appendChild(faqItem);
-    });
-}
-
-renderFaqResults();
 
 let questions = document.querySelectorAll(".question");
 

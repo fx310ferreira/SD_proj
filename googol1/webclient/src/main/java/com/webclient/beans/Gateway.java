@@ -1,27 +1,48 @@
 package com.webclient.beans;
 
+import com.common.ClientInt;
 import com.common.GatewayBarrelInt;
 import com.common.GatewayInt;
 import com.common.Site;
 import com.utils.Utils;
+import com.webclient.Message;
+import org.json.JSONObject;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.ui.Model;
 
 import java.rmi.Naming;
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-public class Gateway {
+public class Gateway extends UnicastRemoteObject implements ClientInt {
     private String RMI_ADDRESS;
     private GatewayInt server;
+    private final SimpMessagingTemplate template;
 
-    public Gateway() {
+    public Gateway(SimpMessagingTemplate template) throws RemoteException {
+        super();
+        this.template = template;
         this.RMI_ADDRESS = Utils.readProperties(this, "RMI_ADDRESS", "localhost");
         try {
             this.server  = (GatewayInt) Naming.lookup("rmi://" + this.RMI_ADDRESS +"/gateway");
+            this.server.addClient(this);
+            template.convertAndSend("/topic/activeBarrels", new Message("testt"));
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void updateStatistics(Set<String> activeBarrels, Map<String, List<Double>> responseTimes, String[] topSearches) throws RemoteException {
+        JSONObject json = new JSONObject();
+        json.put("activeBarrels", activeBarrels);
+        json.put("responseTimes", responseTimes);
+        json.put("topSearches", topSearches);
+        template.convertAndSend("/topic/messages", new Message(json.toString()));
     }
 
     public String query(String query, int page,  Model model) {
