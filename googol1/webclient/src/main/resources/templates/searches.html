@@ -50,13 +50,28 @@
                     <h3 th:text="${site.title}"></h3>
                     <p th:text="${site.url}"></p>
                     <p th:text="${site.description}"></p>
+                    <div th:each="subsite : ${site.pagesThatContain}">
+                        <p th:text="${subsite.url}"></p>
+                    </div>
                 </li>
             </ul>
             <!--add styles for this-->
             <p th:if="${resultNotFound}">No results found</p>
             <div class="pagination">
-                <i id="left-arrow" class="bx bx-chevron-left"></i>
-                <i id="right-arrow" class="bx bx-chevron-right"></i>
+                <form th:action="@{/search}" method="get">
+                    <input type="hidden" th:name="q" th:value="${query}">
+                    <input type="hidden" th:name="page" th:value="${prevPage}">
+                    <button th:if="${canGoBack}" type="submit">
+                        <i class="bx bx-chevron-left" id="left-arrow"></i>
+                    </button>
+                </form>
+                <form th:action="@{/search}" method="get">
+                    <input type="hidden" th:name="q" th:value="${query}">
+                    <input type="hidden" th:name="page" th:value="${nextPage}">
+                    <button th:if="${canGoForward}" type="submit">
+                        <i class="bx bx-chevron-right" id="right-arrow"></i>
+                    </button>
+                </form>
             </div>
         </div>
         <div class="background">

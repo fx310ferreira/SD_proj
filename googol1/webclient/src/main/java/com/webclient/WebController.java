@@ -1,5 +1,4 @@
 package com.webclient;
-import com.common.GatewayInt;
 import com.webclient.beans.Gateway;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Bean;
@@ -8,7 +7,6 @@ import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -30,14 +28,15 @@ public class WebController {
 
     @GetMapping
     public String googol(Model model) {
-        System.out.println(gateway);
         return "landing";
     }
 
     @GetMapping("/search")
-    public String search(@RequestParam(name = "q") String search, Model model) {
+    public String search(@RequestParam(name = "q") String search, @RequestParam(name = "page", required = false, defaultValue = "0") int page, Model model) {
         model.addAttribute("query", search);
-        return gateway.query(search, model);
+        model.addAttribute("nextPage", String.valueOf(Integer.valueOf(page) + 1));
+        model.addAttribute("prevPage", String.valueOf(Integer.valueOf(page) - 1));
+        return gateway.query(search, page, model);
     }
 
 }

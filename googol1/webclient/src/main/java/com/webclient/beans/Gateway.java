@@ -24,7 +24,7 @@ public class Gateway {
         }
     }
 
-    public String query(String query, Model model) {
+    public String query(String query, int page,  Model model) {
         query = query.strip();
         if(query.isEmpty()) {
             return "redirect:/";
@@ -38,9 +38,28 @@ public class Gateway {
             }
         }
         try {
-            Site[] sites = server.search(query, 0);
+            Site[] sites = server.search(query, page);
+            for (Site site : sites) {
+                site.setPagesThatContain(server.linkedPages(site.getUrl()));
+            }
+
+            for (Site site : sites) {
+                System.out.println(site.getPagesThatContain());
+            }
+
             if (sites.length == 0) {
                 model.addAttribute("resultNotFound", true);
+            }
+
+            if(sites.length == 10) {
+                model.addAttribute("canGoForward", true);
+                if(page > 0) {
+                    model.addAttribute("canGoBack", true);
+                }
+            } else if(sites.length < 10) {
+                if(page > 0) {
+                    model.addAttribute("canGoBack", true);
+                }
             }
             List<Site> siteList = new ArrayList<>();
             siteList.addAll(List.of(sites));
