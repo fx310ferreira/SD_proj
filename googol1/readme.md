@@ -8,3 +8,4 @@
  - [ ] Add a better way to show the references
  - [ ] Missing barrels and times per barrel
  - [ ] Missing APIs call
+ - [ ] When a url is inserted the page should not g

@@ -55,7 +55,6 @@
                 <li th:each="site : ${sites}" class="search-item">
                     <h3 th:text="${site.title}"></h3>
                     <p th:text="${site.url}"></p>
-                    <p th:text="${site.description}"></p>
                     <div th:each="subsite : ${site.pagesThatContain}">
                         <p th:text="${subsite.url}"></p>
                     </div>

@@ -28,7 +28,6 @@ public class Site implements Serializable {
         this.url = url;
         this.title = title;
         this.occurrences = 0;
-        this.description = "THIS IS A DEFAULT DESCRIPTION";
     }
 
     /**
@@ -42,7 +41,6 @@ public class Site implements Serializable {
         this.url = url;
         this.title = title;
         this.occurrences = occurrences;
-        this.description = "THIS IS A DEFAULT DESCRIPTION";
     }
 
     /**

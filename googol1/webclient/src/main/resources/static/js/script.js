@@ -50,7 +50,12 @@ hamburger.addEventListener("click", function () {
     sidebar.classList.toggle("active");
     landingPage?.classList.toggle("shift");
     searchesPage?.classList.toggle("shift");
-
+    console.log("Hamburger clicked");
+    fetch("http://localhost:8080/index",
+    {method: "POST",
+     body:'https://github.com',})
+      .then((response) => response.json())
+      .then((json) => console.log(json));
 //    if (this.classList.contains("active")) {
 //        leftArrow.style.visibility = 'hidden';
 //        rightArrow.style.visibility = 'hidden';

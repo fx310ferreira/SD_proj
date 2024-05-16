@@ -37,7 +37,7 @@ public class WebController {
     @GetMapping
     public String googol(Model model) {
         if (gateway == null) {
-            //todo redirect to error page
+            //todo retry connection
             return "redirect:/";
         }
         return "landing";
@@ -49,7 +49,7 @@ public class WebController {
         model.addAttribute("nextPage", String.valueOf(Integer.valueOf(page) + 1));
         model.addAttribute("prevPage", String.valueOf(Integer.valueOf(page) - 1));
         if (gateway == null) {
-            //todo redirect to error page
+            //todo retry connection
             return "redirect:/";
         }
         return gateway.query(search, page, model);

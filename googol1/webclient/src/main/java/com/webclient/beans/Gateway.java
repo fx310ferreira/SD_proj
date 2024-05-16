@@ -1,7 +1,6 @@
 package com.webclient.beans;
 
 import com.common.ClientInt;
-import com.common.GatewayBarrelInt;
 import com.common.GatewayInt;
 import com.common.Site;
 import com.utils.Utils;
