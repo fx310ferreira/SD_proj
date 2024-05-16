@@ -5,8 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GOOGOL</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <script defer src="/webjars/sockjs-client/sockjs.min.js"></script>
+    <script defer src="/webjars/stomp-websocket/stomp.min.js"></script>
     <script defer th:src="@{js/script.js}" type="text/javascript"></script>
     <script defer th:src="@{js/stars.js}" type="text/javascript"></script>
+    <script defer th:src="@{js/webSocket.js}" type="text/javascript"></script>
     <link th:href="@{/css/style.css}" rel="stylesheet" />
 </head>
 <body>
@@ -32,9 +35,12 @@
                     <div class="response-time">90 ms</div>
                 </div>
             </div> -->
-            <div class="faq"> 
+            <div class="faq">
+                <h1>Top 10 Searches</h1>
                 <div class="top-searches">
-                    <h1>Top 10 Searches</h1>
+                    <div th:each="search : ${topSearches}" class="container-q">
+                        <div th:text="${search}" class="question"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -51,14 +57,29 @@
                         <h3 th:text="${site.title}"></h3>
                     </a>
                     <p th:text="${site.description}"></p>
+                    <div th:each="subsite : ${site.pagesThatContain}">
+                        <p th:text="${subsite.url}"></p>
+                    </div>
                 </li>
             </ul>            
             <!--add styles for this-->
             <p th:if="${resultNotFound}">No results found</p>
             <div class="pagination">
-                <i id="left-arrow" class="bx bx-chevron-left"></i>
-                <i id="right-arrow" class="bx bx-chevron-right"></i>
-            </div>.
+                <form th:action="@{/search}" method="get">
+                    <input type="hidden" th:name="q" th:value="${query}">
+                    <input type="hidden" th:name="page" th:value="${prevPage}">
+                    <button th:if="${canGoBack}" type="submit">
+                        <i class="bx bx-chevron-left" id="left-arrow"></i>
+                    </button>
+                </form>
+                <form th:action="@{/search}" method="get">
+                    <input type="hidden" th:name="q" th:value="${query}">
+                    <input type="hidden" th:name="page" th:value="${nextPage}">
+                    <button th:if="${canGoForward}" type="submit">
+                        <i class="bx bx-chevron-right" id="right-arrow"></i>
+                    </button>
+                </form>
+            </div>
         </div>
         <div class="background">
             <div class="stars-group"></div>

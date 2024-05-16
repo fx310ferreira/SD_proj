@@ -22,10 +22,15 @@ repositories {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-websocket")
     compileOnly("org.projectlombok:lombok")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     annotationProcessor("org.projectlombok:lombok")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    implementation("org.webjars:stomp-websocket:2.3.4")
+    implementation("org.webjars:webjars-locator:0.52")
+    implementation("org.webjars:sockjs-client:1.5.1")
+    implementation("org.json:json:20240303")
     implementation(project(":common"))
 }
 

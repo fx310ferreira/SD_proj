@@ -116,6 +116,7 @@ public class Gateway extends UnicastRemoteObject implements GatewayInt {
     @Override
     public void addClient(ClientInt client) {
         clients.add(client);
+        System.out.println("Client added: " + client.toString());
         try {
             client.updateStatistics(gatewayBarrel.getBarrels(), getResponseTimes(), getTopSearches());
         } catch (RemoteException e) {

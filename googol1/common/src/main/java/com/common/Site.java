@@ -5,6 +5,8 @@
 package com.common;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Represents a site that has been indexed by the search engine.
@@ -14,7 +16,7 @@ public class Site implements Serializable {
     String title;
     String description;
     int occurrences;
-    String[] pagesThatContain;
+    Site[] pagesThatContain;
 
     /**
      * Constructs a Site object with the given URL and title.
@@ -48,12 +50,14 @@ public class Site implements Serializable {
      *
      * @return A string representing the pages that contain the current web page.
      */
-    public String getPagesThatContain() {
-        StringBuilder result = new StringBuilder();
-        for (String page : pagesThatContain) {
-            result.append(page).append("\n");
-        }
-        return result.toString();
+    public ArrayList<Site> getPagesThatContain() {
+        ArrayList<Site> sites = new ArrayList<>();
+        Collections.addAll(sites, pagesThatContain);
+        return sites;
+    }
+
+    public void setPagesThatContain(Site[] pagesThatContain) {
+        this.pagesThatContain = pagesThatContain;
     }
 
     /**
