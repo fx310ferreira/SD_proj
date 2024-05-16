@@ -45,25 +45,6 @@ setInterval(updateGradient, 2500);
 
 // ------------------------------------------------------
 
-hamburger.addEventListener("click", function () {
-    this.classList.toggle("active");
-    sidebar.classList.toggle("active");
-    landingPage.classList.toggle("shift");
-    searchesPage.classList.toggle("shift");
-
-    if (this.classList.contains("active")) {
-        leftArrow.style.visibility = 'hidden';
-        rightArrow.style.visibility = 'hidden';
-    } else {
-        setTimeout(() => {
-            leftArrow.style.visibility = 'visible';
-            rightArrow.style.visibility = 'visible';
-        }, 600);
-    }
-});
-
-// ------------------------------------------------------
-
 const faqData = [
     { question: 'Google', answer: 'https://www.google.com' },
     { question: 'Youtube', answer: 'https://www.youtube.com' },
@@ -162,18 +143,6 @@ function createSearchResultItem(result) {
     return li;
 }
 
-function renderSearchResults() {
-    const searchResultsElement = document.querySelector('.search-results');
-    searchResultsElement.innerHTML = '';
-
-    searchResultsData.forEach(result => {
-        const item = createSearchResultItem(result);
-        searchResultsElement.appendChild(item);
-    });
-}
-
-renderSearchResults();
-
 // ------------------------------------------------------
 
 let currentPageNumber = 1;
@@ -211,5 +180,5 @@ function updateContent() {
     } else {
         leftArrow.style.visibility = 'hidden';
     }
-    rightArrow.style.display = 'block';
+    rightArrow.style.visibility = 'visible';
 }

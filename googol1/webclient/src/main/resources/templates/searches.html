@@ -53,13 +53,14 @@
             </form>
             <ul class="search-results">
                 <li th:each="site : ${sites}" class="search-item">
-                    <h3 th:text="${site.title}"></h3>
-                    <p th:text="${site.url}"></p>
+                    <a th:href="${site.url}" target="_blank">
+                        <h3 th:text="${site.title}"></h3>
+                    </a>
                     <div th:each="subsite : ${site.pagesThatContain}">
                         <p th:text="${subsite.url}"></p>
                     </div>
                 </li>
-            </ul>
+            </ul>            
             <!--add styles for this-->
             <p th:if="${resultNotFound}">No results found</p>
             <div class="pagination">
