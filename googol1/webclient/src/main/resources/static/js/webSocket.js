@@ -60,14 +60,13 @@ function displayTimes(responseTimes, barrels) {
     const timesElement = document.querySelector('.response-times');
     timesElement.innerHTML = '';
     console.log(responseTimes);
-    //todo fix times display
     barrels.forEach(item => {
         var sum = 0;
         responseTimes[item].forEach(time => {
             sum += time;
         });
         var avg = sum / responseTimes[item].length;
-        avg = avg.toFixed(2);
+        avg = avg.toFixed(3);
         const faqItem = createTimes(avg);
         timesElement.appendChild(faqItem);
     });

@@ -52,7 +52,7 @@ public class Gateway extends UnicastRemoteObject implements ClientInt {
                for (Double time : responseTimes.get(barrel)) {
                      sum += time;
                }
-               sum = (double) Math.round(sum / responseTimes.get(barrel).size() * 100) /100;
+               sum = (double) Math.round(sum / responseTimes.get(barrel).size() * 1000) / 1000;
                this.responseTimes.add(sum);
             }
         }
