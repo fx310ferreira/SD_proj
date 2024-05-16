@@ -67,6 +67,7 @@ function displayTimes(responseTimes, barrels) {
             sum += time;
         });
         var avg = sum / responseTimes[item].length;
+        avg = avg.toFixed(2);
         const faqItem = createTimes(avg);
         timesElement.appendChild(faqItem);
     });

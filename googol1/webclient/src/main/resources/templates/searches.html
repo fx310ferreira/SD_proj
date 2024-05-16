@@ -21,14 +21,18 @@
         </div>
         <div class="sidebar">
             <div class="table">
-                <h1>Active Barrels</h1>
-                <div class="active-barrels">
-                    <div class="barrel" th:each="barrel : ${activeBarrels}" th:text="${barrel}"></div>
+                <div>
+                    <h1>Active Barrels</h1>
+                    <div class="active-barrels">
+                        <div class="barrel" th:each="barrel : ${activeBarrels}" th:text="${barrel}"></div>
+                    </div>
                 </div>
                 <div class="separator"></div>
-                <h1>Response Times\ds</h1>
-                <div class="response-times">
-                    <div class="response-time" th:each="time : ${responseTimes}" th:text="${time}"></div>
+                <div>
+                    <h1>Response Times\ds</h1>
+                    <div class="response-times">
+                        <div class="response-time" th:each="time : ${responseTimes}" th:text="${time}"></div>
+                    </div>
                 </div>
             </div>
             <div class="faq">

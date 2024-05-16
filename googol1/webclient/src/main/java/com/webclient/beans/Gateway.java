@@ -52,7 +52,8 @@ public class Gateway extends UnicastRemoteObject implements ClientInt {
                for (Double time : responseTimes.get(barrel)) {
                      sum += time;
                }
-               this.responseTimes.add(sum/responseTimes.get(barrel).size());
+               sum = (double) Math.round(sum / responseTimes.get(barrel).size() * 100) /100;
+               this.responseTimes.add(sum);
             }
         }
         template.convertAndSend("/topic/messages", new Message(json.toString()));
