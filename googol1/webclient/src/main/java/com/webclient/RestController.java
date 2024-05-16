@@ -28,7 +28,7 @@ public class RestController {
             }
             return ResponseEntity.status(400).body("Invalid URL: " + url);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error indexing connection failled");
+            return ResponseEntity.status(500).body("Error indexing connection failed");
         }
     }
 }

@@ -10,6 +10,8 @@ function connect() {
         stompClient.subscribe('/topic/messages', function (message) {
             const result = JSON.parse(JSON.parse(message.body).content);
             displayTop(result.topSearches);
+            displayBarrels(result.activeBarrels);
+            displayTimes(result.responseTimes, result.activeBarrels);
         });
     });
 }
@@ -38,6 +40,42 @@ function createFaqItem(data) {
     return container;
 }
 
-//document.getElementById('send').onclick = function () {
-//    stompClient.send("/app/message", {}, JSON.stringify({content: "puta"}));
-//}
+function displayBarrels(barrels) {
+    const barrelsElement = document.querySelector('.active-barrels');
+    barrelsElement.innerHTML = '';
+    barrels.forEach(item => {
+        const faqItem = createBarrelItem(item);
+        barrelsElement.appendChild(faqItem);
+    });
+}
+
+function createBarrelItem(data) {
+    const container = document.createElement('div');
+    container.classList.add('barrel');
+    container.textContent = data;
+    return container;
+}
+
+function displayTimes(responseTimes, barrels) {
+    const timesElement = document.querySelector('.response-times');
+    timesElement.innerHTML = '';
+    console.log(responseTimes);
+    //todo fix times display
+    barrels.forEach(item => {
+        var sum = 0;
+        responseTimes[item].forEach(time => {
+            sum += time;
+        });
+        var avg = sum / responseTimes[item].length;
+        const faqItem = createTimes(avg);
+        timesElement.appendChild(faqItem);
+    });
+}
+
+function createTimes(data) {
+    const container = document.createElement('div');
+    container.classList.add('response-time');
+    console.log(data);
+    container.textContent = data;
+    return container;
+}

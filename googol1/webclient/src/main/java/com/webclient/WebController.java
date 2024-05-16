@@ -40,6 +40,7 @@ public class WebController {
             //todo retry connection
             return "redirect:/";
         }
+        gateway.displayStatistics(model);
         return "landing";
     }
 

@@ -22,6 +22,8 @@ public class Gateway extends UnicastRemoteObject implements ClientInt {
     private GatewayInt server;
     private final SimpMessagingTemplate template;
     ArrayList<String> topSearches = new ArrayList<>();
+    ArrayList<String> activeBarrels = new ArrayList<>();
+    ArrayList<Double> responseTimes = new ArrayList<>();
 
     public Gateway(SimpMessagingTemplate template) throws RemoteException {
         super();
@@ -42,7 +44,24 @@ public class Gateway extends UnicastRemoteObject implements ClientInt {
         json.put("responseTimes", responseTimes);
         json.put("topSearches", topSearches);
         this.topSearches = new ArrayList<>(List.of(topSearches));
+        this.activeBarrels = new ArrayList<>(activeBarrels);
+        this.responseTimes = new ArrayList<>();
+        for (String barrel : activeBarrels){
+            if(responseTimes.containsKey(barrel)) {
+               double sum = 0;
+               for (Double time : responseTimes.get(barrel)) {
+                     sum += time;
+               }
+               this.responseTimes.add(sum/responseTimes.get(barrel).size());
+            }
+        }
         template.convertAndSend("/topic/messages", new Message(json.toString()));
+    }
+
+    public void displayStatistics(Model model) {
+        model.addAttribute("topSearches", topSearches);
+        model.addAttribute("activeBarrels", activeBarrels);
+        model.addAttribute("responseTimes", responseTimes);
     }
 
     public String query(String query, int page,  Model model) {
@@ -81,7 +100,7 @@ public class Gateway extends UnicastRemoteObject implements ClientInt {
             List<Site> siteList = new ArrayList<>();
             siteList.addAll(List.of(sites));
             model.addAttribute("sites", siteList);
-            model.addAttribute("topSearches", topSearches);
+            displayStatistics(model);
         } catch (RemoteException e) {
             System.out.println("Error searching");
         }

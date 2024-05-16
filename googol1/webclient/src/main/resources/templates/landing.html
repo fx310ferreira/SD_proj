@@ -20,24 +20,23 @@
             <span class="line"></span>
         </div>
         <div class="sidebar">
-            <!-- <div class="table">
+            <div class="table">
+                <h1>Active Barrels</h1>
                 <div class="active-barrels">
-                    <h1>Active Barrels</h1>
-                    <div class="barrel">Barrel_1</div>
-                    <div class="barrel">Barrel_2</div>
-                    <div class="barrel">Barrel_3</div>
+                    <div class="barrel" th:each="barrel : ${activeBarrels}" th:text="${barrel}"></div>
                 </div>
                 <div class="separator"></div>
+                <h1>Response Times\ds</h1>
                 <div class="response-times">
-                    <h1>Response Times</h1>
-                    <div class="response-time">100 ms</div>
-                    <div class="response-time">120 ms</div>
-                    <div class="response-time">90 ms</div>
+                    <div class="response-time" th:each="time : ${responseTimes}" th:text="${time}"></div>
                 </div>
-            </div> -->
-            <div class="faq"> 
+            </div>
+            <div class="faq">
+                <h1>Top 10 Searches</h1>
                 <div class="top-searches">
-                    <h1>Top 10 Searches</h1>
+                    <div th:each="search : ${topSearches}" class="container-q">
+                        <div th:text="${search}" class="question"></div>
+                    </div>
                 </div>
             </div>
         </div>
