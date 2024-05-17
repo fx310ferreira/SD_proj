@@ -24,18 +24,8 @@ function updateGradient() {
         searchBar.style.boxShadow = `0 0 20px ${currentColor}`;
     });
 
-    /* if (document.querySelector('.searches-page').classList.contains('active')) {
-        // Reduce the opacity of the aurora gradient
-        auroraGradient.style.background = `radial-gradient(125% 125% at 50% 0%, #020617 50%, ${currentColor}), radial-gradient(125% 125% at 50% 0%, #020617 50%, ${nextColor})`;
-    } else {
-        // Keep the original gradient without opacity adjustment
-        auroraGradient.style.background = `radial-gradient(125% 125% at 50% 0%, #020617 50%, ${currentColor}), radial-gradient(125% 125% at 50% 0%, #020617 50%, ${nextColor})`;
-    } */
-
     auroraGradient.style.background = `radial-gradient(125% 125% at 50% 0%, #020617 50%, ${currentColor}), radial-gradient(125% 125% at 50% 0%, #020617 50%, ${nextColor})`;
-    // auroraGradient.style.transition = 'background 2.5s ease-in-out';
 
-    // sidebar.style.border = `2px solid ${currentColor}`;
     currentIndex = (currentIndex + 1) % colors.length;
 }
 
@@ -50,20 +40,6 @@ hamburger.addEventListener("click", function () {
     sidebar.classList.toggle("active");
     landingPage?.classList.toggle("shift");
     searchesPage?.classList.toggle("shift");
-    console.log("Hamburger clicked");
-    fetch("http://localhost:8080/index",
-    {method: "POST",
-     body:'https://github.com',})
-      .then((response) => response.json())
-      .then((json) => console.log(json));
-//    if (this.classList.contains("active")) {
-//        leftArrow.style.visibility = 'hidden';
-//        rightArrow.style.visibility = 'hidden';
-//    } else {
-//        setTimeout(() => {
-//            updateContent();
-//        }, 600);
-//    }
 });
 
 // ------------------------------------------------------
@@ -85,7 +61,6 @@ questions.forEach(question => {
 
         if (question.classList.contains("active")) {
             answer.style.padding = "20px 0";
-            // answer.style.maxHeight = answer.scrollHeight + "px";
         } else {
             answer.style.maxHeight = 0;
             answer.style.padding = "0";
@@ -119,7 +94,10 @@ document.querySelector('.search-input').addEventListener('keypress', function (e
     }
 });
 
-function performHackerNewsSearch(query) {
+performHackerNewsSearch();
+
+function performHackerNewsSearch() {
+    const query = document.querySelector('.search-input').value;
     fetch('https://hacker-news.firebaseio.com/v0/topstories.json')
         .then(response => response.json())
         .then(ids => {
@@ -132,18 +110,16 @@ function performHackerNewsSearch(query) {
                 let indexCount = 0;
                 let indexPromises = results.map(item => {
                     if ((item.title && item.title.includes(query)) || (item.text && item.text.includes(query))) {
-                        return fetch('http://localhost:8080/index', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: item.url
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            console.log(data);
-                            indexCount++;
-                        });
+                            return fetch('http://localhost:8080/index', {
+                                method: 'POST',
+                                body: item.url
+                            })
+                            .then(response => response.json())
+                            .then(r => {
+                                indexCount++;
+                            }).catch(e => {
+                                console.log(e);
+                            })
                     }
                 });
 
@@ -175,4 +151,3 @@ function getAstronomyPicture() {
             popUpTitle.textContent = 'Error loading the Astronomy Picture of the Day';
         });
 };
-
