@@ -44,6 +44,14 @@
                 </div>
             </div>
         </div>
+        <div class="popup-container">
+            <div class="popup-content">
+                <a href="#" class="close">&times;</a>
+                <h3>Astronomy Picture of the Day</h3>
+                <div class="popup-image"></div>
+                <div class="popup-title"></div>
+            </div>
+        </div>
         <div class="searches-page active">
             <form th:action="@{/search}" method="get" class="search-bar">
                 <input type="text" class="search-input" placeholder="Search something" th:name="q" th:value="${query}">
