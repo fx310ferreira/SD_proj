@@ -5,8 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GOOGOL</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <script defer src="/webjars/sockjs-client/sockjs.min.js"></script>
+    <script defer src="/webjars/stomp-websocket/stomp.min.js"></script>
     <script defer th:src="@{js/script.js}" type="text/javascript"></script>
     <script defer th:src="@{js/stars.js}" type="text/javascript"></script>
+    <script defer th:src="@{js/webSocket.js}" type="text/javascript"></script>
     <link th:href="@{/css/style.css}" rel="stylesheet" />
 </head>
 <body>
@@ -17,24 +20,27 @@
             <span class="line"></span>
         </div>
         <div class="sidebar">
-            <!-- <div class="table">
-                <div class="active-barrels">
+            <div class="table">
+                <div>
                     <h1>Active Barrels</h1>
-                    <div class="barrel">Barrel_1</div>
-                    <div class="barrel">Barrel_2</div>
-                    <div class="barrel">Barrel_3</div>
+                    <div class="active-barrels">
+                        <div class="barrel" th:each="barrel : ${activeBarrels}" th:text="${barrel}"></div>
+                    </div>
                 </div>
                 <div class="separator"></div>
-                <div class="response-times">
-                    <h1>Response Times</h1>
-                    <div class="response-time">100 ms</div>
-                    <div class="response-time">120 ms</div>
-                    <div class="response-time">90 ms</div>
+                <div>
+                    <h1>Response Times\ds</h1>
+                    <div class="response-times">
+                        <div class="response-time" th:each="time : ${responseTimes}" th:text="${time}"></div>
+                    </div>
                 </div>
-            </div> -->
-            <div class="faq"> 
+            </div>
+            <div class="faq">
+                <h1>Top 10 Searches</h1>
                 <div class="top-searches">
-                    <h1>Top 10 Searches</h1>
+                    <div th:each="search : ${topSearches}" class="container-q">
+                        <div th:text="${search}" class="question"></div>
+                    </div>
                 </div>
             </div>
         </div>

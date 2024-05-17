@@ -97,8 +97,9 @@ questions.forEach(question => {
 
 document.querySelector('.bx-search').addEventListener('click', function () {
     const searchQuery = document.querySelector('.search-input').value;
-
-    // Perform the search using the query (...)
+    if (searchQuery) {
+        performHackerNewsSearch(searchQuery);
+    }
 
     // Hide the landing page and show the search results page
     document.querySelector('.landing-page').classList.remove('active');
@@ -108,11 +109,48 @@ document.querySelector('.bx-search').addEventListener('click', function () {
 document.querySelector('.search-input').addEventListener('keypress', function (e) {
     if (e.key === 'Enter') {
         const searchQuery = document.querySelector('.search-input').value;
-
-        // Perform the search using the query
+        if (searchQuery) {
+            performHackerNewsSearch(searchQuery);
+        }
 
         // Hide the landing page and show the search results page
         document.querySelector('.landing-page').classList.remove('active');
         document.querySelector('.searches-page').classList.add('active');
     }
 });
+
+function performHackerNewsSearch(query) {
+    fetch('https://hacker-news.firebaseio.com/v0/topstories.json')
+        .then(response => response.json())
+        .then(ids => {
+            let fetchPromises = ids.map(id => 
+                fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`)
+                .then(response => response.json())
+            );
+
+            Promise.all(fetchPromises).then(results => {
+                let indexCount = 0;
+                let indexPromises = results.map(item => {
+                    if ((item.title && item.title.includes(query)) || (item.text && item.text.includes(query))) {
+                        return fetch('http://localhost:8080/index', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ url: item.url })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log(data);
+                            indexCount++;
+                        });
+                    }
+                });
+
+                Promise.all(indexPromises).then(() => {
+                    console.log(`${indexCount} link(s) indexado(s) do Hacker News`);
+                    document.querySelector('.sidebar').innerHTML += `<p>${indexCount} link(s) indexado(s) do Hacker News</p>`;
+                });
+            });
+        });
+}

@@ -45,47 +45,28 @@ setInterval(updateGradient, 2500);
 
 // ------------------------------------------------------
 
-const faqData = [
-    { question: 'Google', answer: 'https://www.google.com' },
-    { question: 'Youtube', answer: 'https://www.youtube.com' },
-    { question: 'Facebook', answer: 'https://www.facebook.com' },
-    { question: 'Instagram', answer: 'https://www.instagram.com' },
-    { question: 'Tik Tok', answer: 'https://www.tiktok.com' },
-    { question: 'Amazon', answer: 'https://www.amazon.com' }
-    // { question: 'Wikipedia', answer: 'https://www.wikipedia.org' },
-    // { question: '-hub', answer: "You don't wanna know" },
-    // { question: 'Open AI', answer: 'https://www.openai.com' },
-    // { question: 'Reddit', answer: 'https://www.reddit.com' }
-];
+hamburger.addEventListener("click", function () {
+    this.classList.toggle("active");
+    sidebar.classList.toggle("active");
+    landingPage?.classList.toggle("shift");
+    searchesPage?.classList.toggle("shift");
+    console.log("Hamburger clicked");
+    fetch("http://localhost:8080/index",
+    {method: "POST",
+     body:'https://github.com',})
+      .then((response) => response.json())
+      .then((json) => console.log(json));
+//    if (this.classList.contains("active")) {
+//        leftArrow.style.visibility = 'hidden';
+//        rightArrow.style.visibility = 'hidden';
+//    } else {
+//        setTimeout(() => {
+//            updateContent();
+//        }, 600);
+//    }
+});
 
-function createFaqItem(data) {
-    const container = document.createElement('div');
-    container.classList.add('container-q');
-
-    const question = document.createElement('div');
-    question.classList.add('question');
-    question.textContent = data.question;
-
-    const answer = document.createElement('div');
-    answer.classList.add('answer');
-    answer.textContent = data.answer;
-
-    container.appendChild(question);
-    container.appendChild(answer);
-
-    return container;
-}
-
-function renderFaqResults() {
-    const topSearchesElement = document.querySelector('.top-searches');
-
-    faqData.forEach(item => {
-        const faqItem = createFaqItem(item);
-        topSearchesElement.appendChild(faqItem);
-    });
-}
-
-renderFaqResults();
+// ------------------------------------------------------
 
 let questions = document.querySelectorAll(".question");
 
@@ -114,71 +95,62 @@ questions.forEach(question => {
 
 // ------------------------------------------------------
 
-const searchResultsData = [
-    { title: 'Search Result 1', description: 'Search Result 1 Description' },
-    { title: 'Search Result 2', description: 'Search Result 2 Description' },
-    { title: 'Search Result 3', description: 'Search Result 3 Description' },
-    { title: 'Search Result 4', description: 'Search Result 4 Description' },
-    { title: 'Search Result 5', description: 'Search Result 5 Description' },
-    { title: 'Search Result 6', description: 'Search Result 6 Description' },
-    { title: 'Search Result 7', description: 'Search Result 7 Description' },
-    { title: 'Search Result 8', description: 'Search Result 8 Description' },
-    { title: 'Search Result 9', description: 'Search Result 9 Description' },
-    { title: 'Search Result 10', description: 'Search Result 10 Description' }
-];
-
-function createSearchResultItem(result) {
-    const li = document.createElement('li');
-    li.classList.add('search-item');
-
-    const h3 = document.createElement('h3');
-    h3.textContent = result.title;
-
-    const p = document.createElement('p');
-    p.textContent = result.description;
-
-    li.appendChild(h3);
-    li.appendChild(p);
-
-    return li;
-}
-
-// ------------------------------------------------------
-
-let currentPageNumber = 1;
-
-updateContent();
-
-document.getElementById('left-arrow').addEventListener('click', function() {
-    currentPageNumber--;
-    animateSearchResults('right');
-    updateContent();
-});
-
-document.getElementById('right-arrow').addEventListener('click', function() {
-    currentPageNumber++;
-    animateSearchResults('left');
-    updateContent();
-});
-
-function animateSearchResults(direction) {
-    const searchItems = document.querySelectorAll('.search-item');
-    const animationDuration = 0.6;
-    let delayIncrement = animationDuration / searchItems.length;
-
-    searchItems.forEach((item, index) => {
-        const delay = direction === 'left' ? index * delayIncrement : (searchItems.length - index - 1) * delayIncrement;
-        const translateValue = `${100 * (currentPageNumber - 1)}%`;
-        item.style.transition = `transform ${animationDuration}s ${delay}s ease-in-out`;
-        item.style.transform = `translateX(${translateValue})`;
-    });
-}
-
-function updateContent() {
-    if (currentPageNumber > 1) {
-        leftArrow.style.visibility = 'visible';
-    } else {
-        leftArrow.style.visibility = 'hidden';
+document.querySelector('.bx-search').addEventListener('click', function () {
+    const searchQuery = document.querySelector('.search-input').value;
+    if (searchQuery) {
+        performHackerNewsSearch(searchQuery);
     }
-    rightArrow.style.visibility = 'visible';
+
+    // Hide the landing page and show the search results page
+    document.querySelector('.landing-page').classList.remove('active');
+    document.querySelector('.searches-page').classList.add('active');
+});
+
+document.querySelector('.search-input').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        const searchQuery = document.querySelector('.search-input').value;
+        if (searchQuery) {
+            performHackerNewsSearch(searchQuery);
+        }
+
+        // Hide the landing page and show the search results page
+        document.querySelector('.landing-page').classList.remove('active');
+        document.querySelector('.searches-page').classList.add('active');
+    }
+});
+
+function performHackerNewsSearch(query) {
+    fetch('https://hacker-news.firebaseio.com/v0/topstories.json')
+        .then(response => response.json())
+        .then(ids => {
+            let fetchPromises = ids.map(id => 
+                fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`)
+                .then(response => response.json())
+            );
+
+            Promise.all(fetchPromises).then(results => {
+                let indexCount = 0;
+                let indexPromises = results.map(item => {
+                    if ((item.title && item.title.includes(query)) || (item.text && item.text.includes(query))) {
+                        return fetch('http://localhost:8080/index', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ url: item.url })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log(data);
+                            indexCount++;
+                        });
+                    }
+                });
+
+                Promise.all(indexPromises).then(() => {
+                    console.log(`${indexCount} link(s) indexado(s) do Hacker News`);
+                    document.querySelector('.sidebar').innerHTML += `<p>${indexCount} link(s) indexado(s) do Hacker News</p>`;
+                });
+            });
+        });
 }
