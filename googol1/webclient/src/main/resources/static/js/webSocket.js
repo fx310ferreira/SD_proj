@@ -5,8 +5,6 @@ function connect() {
     stompClient = Stomp.over(socket);
     console.log(stompClient);
     stompClient.connect({}, function (frame) {
-        console.log('connecting to websocket');
-        console.log('Connected: ' + frame);
         stompClient.subscribe('/topic/messages', function (message) {
             const result = JSON.parse(JSON.parse(message.body).content);
             displayTop(result.topSearches);

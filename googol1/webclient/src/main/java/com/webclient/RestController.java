@@ -2,7 +2,6 @@ package com.webclient;
 
 import com.common.GatewayInt;
 import com.utils.Utils;
-import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,7 +22,7 @@ public class RestController {
                 if (gateway.indexURL(url)) {
                     return ResponseEntity.ok("Indexing " + url);
                 } else {
-                    return ResponseEntity.status(500).body("Error indexing " + url);
+                    return ResponseEntity.status(400).body("Url already indexed " + url);
                 }
             }
             return ResponseEntity.status(400).body("Invalid URL: " + url);
