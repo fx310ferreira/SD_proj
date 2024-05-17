@@ -94,8 +94,6 @@ document.querySelector('.search-input').addEventListener('keypress', function (e
     }
 });
 
-performHackerNewsSearch();
-
 function performHackerNewsSearch() {
     const query = document.querySelector('.search-input').value;
     fetch('https://hacker-news.firebaseio.com/v0/topstories.json')
@@ -130,6 +128,9 @@ function performHackerNewsSearch() {
             });
         });
 }
+
+performHackerNewsSearch();
+
 
 function getAstronomyPicture() {
     const apiKey = 'S2hU0xFxd7RpD4NdVXjzdAN0ogmYkCyidxCiYZAI';
