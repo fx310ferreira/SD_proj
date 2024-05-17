@@ -27,6 +27,9 @@ gradle barrel:run
 
 # Run downloaders
 gradle downloader:run
+
+# Run the webclient
+gradle webclient:run
 ```
 
 
