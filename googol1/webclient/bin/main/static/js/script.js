@@ -137,7 +137,7 @@ function performHackerNewsSearch(query) {
                             headers: {
                                 'Content-Type': 'application/json'
                             },
-                            body: JSON.stringify({ url: item.url })
+                            body: item.url
                         })
                         .then(response => response.json())
                         .then(data => {
