@@ -228,6 +228,23 @@
     transition: padding 0.3s;
 }
 
+.popup-link {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.popup-link a {
+    background: transparent;
+    color: #fff;
+    border: 1px solid #ccc;
+    padding: 10px 30px;
+    border-radius: 5px;
+    font-size: 17px;
+    margin: 20px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
 .popup-container {
     left: 0;
     top: 0;

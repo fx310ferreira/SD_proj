@@ -152,3 +152,5 @@ function getAstronomyPicture() {
             popUpTitle.textContent = 'Error loading the Astronomy Picture of the Day';
         });
 };
+
+document.querySelector('.popup-link').addEventListener('click', getAstronomyPicture);
