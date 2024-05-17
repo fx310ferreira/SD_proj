@@ -130,27 +130,3 @@ function performHackerNewsSearch() {
 }
 
 performHackerNewsSearch();
-
-
-function getAstronomyPicture() {
-    const apiKey = 'S2hU0xFxd7RpD4NdVXjzdAN0ogmYkCyidxCiYZAI';
-    const apiUrl = `https://api.nasa.gov/planetary/apod?api_key=${apiKey}`;
-
-    const popUpImage = document.querySelector('.popup-image');
-    const popUpTitle = document.getElementById('.popup-title');
-
-    fetch(apiUrl)
-        .then(response => response.json())
-        .then(data => {
-            popUpImage.src = data.url;
-            popUpImage.style.display = 'block';
-            popUpTitle.textContent = data.title;
-        })
-        .catch(error => {
-            console.error('Error fetching the image:', error);
-            popUpImage.style.display = 'none';
-            popUpTitle.textContent = 'Error loading the Astronomy Picture of the Day';
-        });
-};
-
-document.querySelector('.popup-link').addEventListener('click', getAstronomyPicture);
