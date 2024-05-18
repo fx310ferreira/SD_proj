@@ -20,5 +20,10 @@ tasks.withType<Jar> {
     manifest {
         attributes["Main-Class"] = application.mainClass
     }
-    from(project(":common").sourceSets.main.get().output)
+    val dependencies = configurations
+    .runtimeClasspath
+    .get()
+    .map(::zipTree) // OR .map { zipTree(it) }
+    from(dependencies)
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
