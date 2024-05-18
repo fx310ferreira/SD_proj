@@ -529,3 +529,9 @@
     0%   { transform: translateX(-10px); }
     100% { transform: translateX( 10px); }
 }
+
+.search-header {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+}
